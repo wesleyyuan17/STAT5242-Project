@@ -25,7 +25,7 @@ def train(model, dataset, optimizer, criterion, epochs=2, dl_kws=None, return_al
         for features, target in dataloader:
             # any casting to correct datatypes here
 
-            output = model(x)
+            output = model(features)
             loss = criterion(output, target) # make sure this is right order
             
             optimizer.zero_grad()
