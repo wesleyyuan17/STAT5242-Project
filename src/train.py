@@ -34,7 +34,7 @@ def train(model, dataset, optimizer, criterion, epochs=2, dl_kws=None, return_al
             # gradient clipping here if desired
             optimizer.step()
         epoch_losses.append( epoch_avg_loss / steps_per_epoch )
-        # lr_schedulerer here if desired
+        # lr_scheduler here if desired
     
     if return_all:
         return model, epoch_losses, optimizer # add any other state-based objects like lr_scheduler here for debugging

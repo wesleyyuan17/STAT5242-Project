@@ -1,3 +1,5 @@
+import pandas as pd
+
 from torch.utils.data import IterableDataset
 
 class CryptoFeed(IterableDataset):
@@ -11,29 +13,35 @@ class CryptoFeed(IterableDataset):
         """
         df.sort_values(['timestamp', 'Asset_ID'], inplace=True)
         
-        self.features = df.copy()
+        self.id_to_name = dict(zip(df['Asset_ID'], df['Asset_Name']))
+        self.data = [df[df['Asset_ID'] == i].copy() for i in sorted(df['Asset_ID'].unique())]
+        self.targets = pd.concat([tdf.set_index('timestamp')['Target'] for tdf in self.data], axis=1)
+
         if technicals is not None:
-            for k, v in technicals.items():
-                self.features[k] = v(df)
-        self.features.set_index(['timestamp', 'Asset_ID'], inplace=True)
+            for tdf in self.data:
+                for k, v in technicals.items():
+                    tdf[k] = v(tdf)
+        for tdf in self.data:
+            tdf.set_index('timestamp', inplace=True)
         for col in ['timestamp', 'Asset_ID', 'Asset_Name', 'Target']:
-            if col in self.features.columns:
-                self.features.drop(col, axis=1, inplace=True)
-                
-        self.targets = df.set_index(['timestamp', 'Asset_ID'])['Target']
-        
+            for tdf in self.data:
+                if col in tdf.columns:
+                    tdf.drop(col, axis=1, inplace=True)
+
+        self.features = pd.concat(self.data, axis=1)
+                        
         self.seq_len = seq_len
-        self.dates = sorted(df['timestamp'].unique())
-        self.num_valid_starts = len(self.dates) - self.seq_len
+        self.valid_dates = list(self.features.index)
+        self.num_valid_starts = self.features.shape[0] - self.seq_len
     
     def __len__(self):
         return self.df.shape[0]
     
     def __iter__(self):
         for i in range(self.num_valid_starts):
-            date_idx = self.dates[i:i+self.seq_len]
-            features = self.features.loc[date_idx].values
-            target = self.targets.loc[date_idx].values
+            dates_idx = self.valid_dates[i:i+self.seq_len]
+            features = self.features.loc[dates_idx].values
+            target = self.targets.loc[dates_idx].values
             yield features, target
 
 
