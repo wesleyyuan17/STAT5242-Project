@@ -2,6 +2,7 @@ import pandas as pd
 
 from torch.utils.data import IterableDataset
 
+
 class CryptoFeed(IterableDataset):
     def __init__(self, df, seq_len=5, technicals=None):
         """
