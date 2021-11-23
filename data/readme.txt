@@ -1,0 +1,1 @@
+This folder should contain the g-research-crypto-forecasting directory from https://www.kaggle.com/c/g-research-crypto-forecasting. The files in the dataset are too large to be uploaded and shared through github so you must add here them manually. Code in src have relative paths to data in this directory.
