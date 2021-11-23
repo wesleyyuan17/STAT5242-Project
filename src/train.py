@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from preprocessing.data import CryptoFeed
+from preprocessing.data import CryptoFeed, get_crypto_dataset
 from preprocessing import *
 from models import *
 
@@ -40,18 +40,6 @@ def train(model, dataset, optimizer, criterion, epochs=2, dl_kws=None, return_al
         return model, epoch_losses, optimizer # add any other state-based objects like lr_scheduler here for debugging
     else:
         return model, epoch_losses
-
-
-def get_crypto_dataset():
-    data = pd.read_csv('../data/g-research-crypto-forecasting/train.csv')
-    data['timestamp'] = pd.to_datetime(data['timestamp'], unit='s')
-
-    asset_details = pd.read_csv('../../data/g-research-crypto-forecasting/asset_details.csv')
-    id_to_names = dict(zip(asset_details['Asset_ID'], asset_details['Asset_Name']))
-    data['Asset_Name'] = [id_to_names[a] for a in data['Asset_ID']]
-
-    dataset = CryptoFeed(data)
-    return dataset
 
 
 def plot_loss(losses):

@@ -35,3 +35,15 @@ class CryptoFeed(IterableDataset):
             features = self.features.loc[date_idx].values
             target = self.targets.loc[date_idx].values
             yield features, target
+
+
+def get_crypto_dataset():
+    data = pd.read_csv('../data/g-research-crypto-forecasting/train.csv')
+    data['timestamp'] = pd.to_datetime(data['timestamp'], unit='s')
+
+    asset_details = pd.read_csv('../../data/g-research-crypto-forecasting/asset_details.csv')
+    id_to_names = dict(zip(asset_details['Asset_ID'], asset_details['Asset_Name']))
+    data['Asset_Name'] = [id_to_names[a] for a in data['Asset_ID']]
+
+    dataset = CryptoFeed(data)
+    return dataset
