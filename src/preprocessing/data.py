@@ -42,7 +42,7 @@ class CryptoFeed(IterableDataset):
         for i in range(self.num_valid_starts):
             dates_idx = self.valid_dates[i:i+self.seq_len]
             features = self.features.loc[dates_idx].values
-            target = self.targets.loc[dates_idx].values
+            target = self.targets.loc[dates_idx[-1]].values # target is target of end of window
             yield features, target
 
 
