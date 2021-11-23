@@ -73,7 +73,7 @@ def main():
     model.save('trained_model.pth') # replace this probably with command line arg or something, hard coded to fill out skeleton
 
     plot_loss(losses)
-    
+
 
 if __name__ == '__main__':
     main()
