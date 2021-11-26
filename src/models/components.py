@@ -39,6 +39,7 @@ class GraphConv(nn.Module):
             self.sqrt_d_inv = sqrtm(self.d_inv)
 
         self.weight = torch.FloatTensor(in_dim, out_dim)
+        self.bias = torch.FloatTensor(out_dim)
 
         if activation == 'relu':
             self.activation = nn.ReLU()
@@ -60,7 +61,7 @@ class GraphConv(nn.Module):
 
         x = torch.mm(x, self.weight)
         output = sqrt_d_inv.dot(a).dot(sqrt_d_inv).dot(x)
-        return self.activation(output)
+        return self.activation(output) + self.bias
 
 
 class GCN(BaseModel):
