@@ -31,9 +31,9 @@ class GraphConv(nn.Module):
         if adj is not None:
             # constant adjacency convolutions
             if adj[0,0] == 0:
-                self.a = torch.Tensor(adj + np.eye(adj.shape[0]), requires_grad=False)
+                self.a = torch.tensor(adj + np.eye(adj.shape[0]), requires_grad=False)
             else:
-                self.a = torch.Tensor(adj, requires_grad=False)
+                self.a = torch.tensor(adj, requires_grad=False)
             
             self.d_inv = np.linalg.inv( torch.sum(self.a, axis=1) )
             self.sqrt_d_inv = sqrtm(self.d_inv)
@@ -52,21 +52,22 @@ class GraphConv(nn.Module):
             sqrt_d_inv = self.sqrt_d_inv
         else:
             if adj[0,0] == 0:
-                a = torch.Tensor(adj + np.eye(adj.shape[0]), requires_grad=False)
+                a = torch.tensor(adj + np.eye(adj.shape[0]), dtype=self.weight.dtype, requires_grad=False)
             else:
-                a = torch.Tensor(adj, requires_grad=False)
+                a = torch.tensor(adj, dtype=self.weight.dtype, requires_grad=False)
             
-            d_inv = np.linalg.inv( torch.sum(a, axis=1) )
-            sqrt_d_inv = sqrtm(d_inv)
-
-        x = torch.mm(x, self.weight)
-        output = sqrt_d_inv.dot(a).dot(sqrt_d_inv).dot(x)
+            d_inv = np.linalg.inv( torch.diag(torch.sum(a, axis=1)) )
+            sqrt_d_inv = torch.tensor(sqrtm(d_inv), dtype=self.weight.dtype)
+    
+        x = torch.matmul(x, self.weight)
+        output = torch.mv(torch.mm(torch.mm(sqrt_d_inv, a), sqrt_d_inv), x)
         return self.activation(output) + self.bias
 
 
 class GCN(BaseModel):
-    def __init__(self) -> None:
+    def __init__(self, n_features, n_nodes) -> None:
         super().__init__()
+        self.gc1 = GraphConv(n_features, n_nodes, 'relu')
 
-    def forward(self, x):
-        pass
+    def forward(self, x, adj=None):
+        return self.gc1(x, adj)

@@ -1,7 +1,9 @@
 import pandas as pd
+import os
 
 from torch.utils.data import IterableDataset
 
+LOCAL_PATH_TO_DIR = '~/Documents/Academics/Columbia/2021/2021 Fall/Advanced ML/Final Project'
 
 class CryptoFeed(IterableDataset):
     def __init__(self, df, seq_len=5, technicals=None):
@@ -47,10 +49,12 @@ class CryptoFeed(IterableDataset):
 
 
 def get_crypto_dataset():
-    data = pd.read_csv('../data/g-research-crypto-forecasting/train.csv')
+    file_path = os.path.join(LOCAL_PATH_TO_DIR, 'data/g-research-crypto-forecasting/train.csv')
+    data = pd.read_csv(file_path)
     data['timestamp'] = pd.to_datetime(data['timestamp'], unit='s')
 
-    asset_details = pd.read_csv('../../data/g-research-crypto-forecasting/asset_details.csv')
+    file_path = os.path.join(LOCAL_PATH_TO_DIR, 'data/g-research-crypto-forecasting/asset_details.csv')
+    asset_details = pd.read_csv(file_path)
     id_to_names = dict(zip(asset_details['Asset_ID'], asset_details['Asset_Name']))
     data['Asset_Name'] = [id_to_names[a] for a in data['Asset_ID']]
 
