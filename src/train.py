@@ -20,6 +20,9 @@ def train(model, dataset, optimizer, criterion, epochs=2, dl_kws={}, return_all=
     model.train()
     epoch_losses = []
     for e in range(epochs):
+
+        print('Starting epoch {}...'.format(e))
+
         # add tqdm for progress tracking if desired
         epoch_avg_loss = 0
         for features, target, adj in tqdm(dataloader):
@@ -36,6 +39,8 @@ def train(model, dataset, optimizer, criterion, epochs=2, dl_kws={}, return_all=
             optimizer.step()
         epoch_losses.append( epoch_avg_loss / steps_per_epoch )
         # lr_scheduler here if desired
+
+        print('Epoch {} completed. Avg epoch loss: {:.4f}'.format(e, epoch_losses[-1]))
     
     if return_all:
         return model, epoch_losses, optimizer # add any other state-based objects like lr_scheduler here for debugging
@@ -49,7 +54,7 @@ def plot_loss(losses):
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.show()
-    fig.savefig('loss.png') # can be a variable command line arg or something
+    fig.savefig('figures/loss.png') # can be a variable command line arg or something
 
 
 def main():
@@ -65,7 +70,7 @@ def main():
     print('Starting training...')
     model, losses = train(model, dataset, optimizer, criterion, epochs=1) # change up number of epochs depending on loss plot
     print('Model trained. Saving model...')
-    model.save('trained_model.pth') # replace this probably with command line arg or something, hard coded to fill out skeleton
+    model.save('model checkpoints/trained_model.pth') # replace this probably with command line arg or something, hard coded to fill out skeleton
     print('Model saved.')
 
     plot_loss(losses)
