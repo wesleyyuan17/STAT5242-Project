@@ -32,23 +32,28 @@ class CryptoFeed(IterableDataset):
                     tdf.drop(col, axis=1, inplace=True)
 
         self.features = pd.concat(self.data, axis=1)
+
+        # only use last 100k
+        self.features = self.features.iloc[-100000:]
+        self.targets = self.targets.iloc[-100000:]
                         
         self.seq_len = seq_len
         self.valid_dates = list(self.features.index)
-        self.num_valid_starts = self.features.shape[0] - self.seq_len
+        # self.num_valid_starts = self.features.shape[0] - self.seq_len
     
     def __len__(self):
-        return self.df.shape[0]
+        return self.features.shape[0]
     
     def __iter__(self):
-        for i in range(self.num_valid_starts):
-            dates_idx = self.valid_dates[i:i+self.seq_len]
+        for i in range(self.seq_len, len(self.valid_dates)):
+            dates_idx = self.valid_dates[i-self.seq_len:i]
             features = self.features.loc[dates_idx].values
             target = self.targets.loc[dates_idx[-1]].values # target is target of end of window
-            yield features, target
+            adj = self.targets.loc[dates_idx].corr().fillna(value=0).values # correlation matrix between previous seq_len target values
+            yield features, target, adj
 
 
-def get_crypto_dataset():
+def get_crypto_dataset(seq_len=5, technicals=None):
     file_path = os.path.join(LOCAL_PATH_TO_DIR, 'data/g-research-crypto-forecasting/train.csv')
     data = pd.read_csv(file_path)
     data['timestamp'] = pd.to_datetime(data['timestamp'], unit='s')
@@ -57,6 +62,8 @@ def get_crypto_dataset():
     asset_details = pd.read_csv(file_path)
     id_to_names = dict(zip(asset_details['Asset_ID'], asset_details['Asset_Name']))
     data['Asset_Name'] = [id_to_names[a] for a in data['Asset_ID']]
+    data.fillna(method='ffill', inplace=True)
+    data.fillna(value=0, inplace=True)
 
-    dataset = CryptoFeed(data)
+    dataset = CryptoFeed(data, seq_len, technicals)
     return dataset
