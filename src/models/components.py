@@ -37,7 +37,7 @@ class LSTM(BaseModel):
     def forward(self, x):
         output, hidden_state = self.lstm(x, self.hidden_state)
         self.hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())
-        return output[-1]
+        return output[-1] # just output of last in sequence
 
 
 class GraphConv(nn.Module):
