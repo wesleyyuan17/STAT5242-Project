@@ -6,6 +6,9 @@ import torch.nn as nn
 
 
 class BaseModel(nn.Module):
+    """
+    Helper class to reuse saving/loading model code
+    """
     def __init__(self) -> None:
         super().__init__()
 
@@ -27,6 +30,15 @@ class LSTM(BaseModel):
 
 class GraphConv(nn.Module):
     def __init__(self, in_dim, out_dim, activation, adj=None) -> None:
+        """
+        Single layer of graph convolution that takes in node features and adjacency matrix and outputs some value
+
+        Args:
+            in_dim: int, number of features for node vector
+            out_dim: int, number of values to predict for this node
+            activation: str, activation function to use
+            adj: np.ndarray, optional adjacency matrix if fixed for every iteration
+        """
         super().__init__()
         if adj is not None:
             # constant adjacency convolutions
@@ -66,6 +78,13 @@ class GraphConv(nn.Module):
 
 class GCN(BaseModel):
     def __init__(self, n_features, n_pred_per_node) -> None:
+        """
+        Graph convoluation model
+
+        Args:
+            n_features: int, number of features per node (asset)
+            n_pred_per_node: int, number of values to predict for each node (asset)
+        """
         super().__init__()
         self.gc1 = GraphConv(n_features, n_pred_per_node, 'relu')
 
