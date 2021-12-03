@@ -3,7 +3,9 @@ import os
 
 from torch.utils.data import IterableDataset
 
+
 LOCAL_PATH_TO_DIR = '~/Documents/Academics/Columbia/2021/2021 Fall/Advanced ML/Final Project'
+
 
 class CryptoFeed(IterableDataset):
     def __init__(self, df, seq_len=5, technicals=None):
