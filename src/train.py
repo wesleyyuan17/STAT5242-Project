@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from tqdm import tqdm
+import argparse
 
 import torch
 import torch.nn as nn
@@ -11,9 +12,23 @@ from torch.utils.data import DataLoader
 
 from preprocessing.data import CryptoFeed, get_crypto_dataset
 from models.components import GCN
+from models.combined_model import GraphLSTM
 
 
-def train(model, dataset, optimizer, criterion, epochs=2, dl_kws={}, return_all=False):
+def train(model, dataset, optimizer, criterion, epochs=2, dl_kws={}, return_all=False, mode='combined'):
+    """
+    Function that trains a given model on a given dataset using user-defined optimizer/criterion
+
+    Args:
+        model: nn.Module, the model to be trained
+        dataset: torch Dataset object, contains data for training the model
+        optimizer: torch.optim object, controls learning algorithm used for parameter updates
+        criterion: function, some loss function to minimize
+        epochs: int, number of epochs to train for
+        dl_kws: dict, any arguments to pass to DataLoader object
+        return_all: bool, for debugging purposes - if True will return all objects to help observe states
+        mode: str, whether training is on lstm, gcn, or a combined model
+    """
     dataloader = DataLoader(dataset, batch_size=1, **dl_kws)
     steps_per_epoch = len(dataloader)
 
@@ -23,13 +38,24 @@ def train(model, dataset, optimizer, criterion, epochs=2, dl_kws={}, return_all=
 
         print('Starting epoch {}...'.format(e))
 
+        if mode == 'lstm':
+            # need to initialize hidden state
+            hidden_state = (torch.zeros(1, 1, 14), torch.zeros(1, 1, 14))
+
         # add tqdm for progress tracking if desired
         epoch_avg_loss = 0
         for features, target, adj in tqdm(dataloader):
             # any casting to correct datatypes here
             features, target, adj = features.float(), target.float(), adj.float()
 
-            output = model(features, adj.squeeze())
+            if mode == 'lstm':
+                # lstm only takes in sequence of features
+                output, hidden_state = model(features, hidden_state)
+                hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())
+                output = output[-1]
+            else:
+                # gcn and combined model both use adjacency matrix
+                output = model(features, adj.squeeze())
             loss = criterion(output, target) # make sure this is right order
             
             optimizer.zero_grad()
@@ -57,18 +83,28 @@ def plot_loss(losses):
     fig.savefig('figures/loss.png') # can be a variable command line arg or something
 
 
-def main():
+def main(mode):
     print('Creating model...')
-    model = GCN(n_features=7, n_pred_per_node=1).float() # should be combined end-to-end model that combines LSTM and GCN
+    if mode == 'lstm':
+        model = nn.LSTM(input_size=98, hidden_size=14, batch_first=True)
+    elif mode == 'gcn':
+        model = GCN(n_features=7, n_pred_per_node=1)
+    else:
+        model = GraphLSTM(n_features=7, lstm_hidden_dim=14, gcn_pred_per_node=1)
+    model.float()
     print('Model created.\n')
     print('Creating dataset...')
-    dataset = get_crypto_dataset(seq_len=1)
+    if model == 'gcn':
+        # gcn only takes one market state at a time for now
+        dataset = get_crypto_dataset(seq_len=1)
+    else:
+        dataset = get_crypto_dataset(seq_len=10)
     print('Dataset created.\n')
     optimizer = optim.Adam(model.parameters(), lr=1e-3) # can play around with this one
     criterion = nn.MSELoss() # regression problem, could just be MSE?
 
     print('Starting training...')
-    model, losses = train(model, dataset, optimizer, criterion, epochs=1) # change up number of epochs depending on loss plot
+    model, losses = train(model, dataset, optimizer, criterion, epochs=1, mode=mode) # change up number of epochs depending on loss plot
     print('Model trained. Saving model...')
     model.save('model checkpoints/trained_model.pth') # replace this probably with command line arg or something, hard coded to fill out skeleton
     print('Model saved.')
@@ -77,4 +113,9 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--training_mode', dest='mode', required=True, choices=['lstm', 'gcn', 'combined'], 
+                        help='Which model is going to be trained')
+    args = parser.parse_args()
+
+    main(args.mode)

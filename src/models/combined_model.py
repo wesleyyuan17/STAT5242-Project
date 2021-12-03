@@ -2,11 +2,11 @@ from typing import ForwardRef
 import torch
 import torch.nn as nn
 
-from components import *
+from .components import *
 
 
 class GraphLSTM(BaseModel):
-    def __init__(self, n_features, lstm_hidden_dim, lstm_n_layers=1, gcn_pred_per_node=1, gcn_n_layers=1, gcn_hidden_dim=1) -> None:
+    def __init__(self, n_features, lstm_hidden_dim=14, lstm_n_layers=1, gcn_pred_per_node=1, gcn_n_layers=1, gcn_hidden_dim=1) -> None:
         """
         Combines LSTM and GCN models into single e2e trainable model 
 
@@ -24,9 +24,13 @@ class GraphLSTM(BaseModel):
 
         self.model_weights = nn.Parameter(torch.ones(2))
 
+    def initialize_hidden_state(self, batch_size):
+        self.lstm_hidden_state = (torch.zeros(1, batch_size, 14), torch.zeros(1, batch_size, 14))
+
     def forward(self, x, adj):
         # feed through lstm
-        lstm_output = self.lstm(x)
+        lstm_output, self.hidden_state = self.lstm(x, self.hidden_state)
+        self.hidden_state = (self.hidden_state[0].detach(), self.hidden_state[1].detach())
 
         # feed through gcn
         gcn_output = self.gcn(x[-1], adj) # -1 to get latest state since gcn rn takes in just one day's price data
