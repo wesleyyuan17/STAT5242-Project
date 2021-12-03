@@ -11,7 +11,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 from preprocessing.data import CryptoFeed, get_crypto_dataset
-from models.components import GCN
+from models.components import GCN, LSTM
 from models.combined_model import GraphLSTM
 
 
@@ -86,7 +86,7 @@ def plot_loss(losses):
 def main(mode):
     print('Creating model...')
     if mode == 'lstm':
-        model = nn.LSTM(input_size=98, hidden_size=14, batch_first=True)
+        model = LSTM(input_size=98, hidden_size=14, batch_first=True)
     elif mode == 'gcn':
         model = GCN(n_features=7, n_pred_per_node=1)
     else:

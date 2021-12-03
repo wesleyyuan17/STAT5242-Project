@@ -19,18 +19,23 @@ class GraphLSTM(BaseModel):
             gcn_hidden_dim: int, (not supported) number of outputs in hidden dim each node in input is mapped to i.e. with n nodes, hidden layer has dimension n * gcn_hidden_dim
         """
         super().__init__()
+        self.n_features = n_features
+        self.lstm_input_dim = 14 * n_features
+        self.lstm_hidden_dim = lstm_hidden_dim
+        self.lstm_n_layers = lstm_n_layers
+
         self.lstm = LSTM(input_size=14*n_features, hidden_size=lstm_hidden_dim, num_layers=lstm_n_layers, batch_first=True)
         self.gcn = GCN(n_features, gcn_pred_per_node)
 
         self.model_weights = nn.Parameter(torch.ones(2))
 
     def initialize_hidden_state(self, batch_size):
-        self.lstm_hidden_state = (torch.zeros(1, batch_size, 14), torch.zeros(1, batch_size, 14))
+        self.lstm_hidden_state = (torch.zeros(self.lstm_n_layers, batch_size, 14), torch.zeros(self.lstm_n_layers, batch_size, 14))
 
     def forward(self, x, adj):
         # feed through lstm
-        lstm_output, self.hidden_state = self.lstm(x, self.hidden_state)
-        self.hidden_state = (self.hidden_state[0].detach(), self.hidden_state[1].detach())
+        lstm_output, hidden_state = self.lstm(x, self.lstm_hidden_state)
+        self.lstm_hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())
 
         # feed through gcn
         gcn_output = self.gcn(x[-1], adj) # -1 to get latest state since gcn rn takes in just one day's price data

@@ -20,15 +20,24 @@ class BaseModel(nn.Module):
 
 
 class LSTM(BaseModel):
-    def __init__(self, input_size, hidden_size, num_layers, batch_first) -> None:
+    def __init__(self, input_size, hidden_size, num_layers=1, batch_first=False) -> None:
         """
         Wrapper for PyTorch implementation of LSTM to take advantage of save/load of BaseModel
         """
         super().__init__()
-        self.lstm = nn.LSTM(input_size=10, hidden_size=10, num_layers=2, batch_first=True)
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+
+        self.lstm = nn.LSTM(input_size=input_size, hidden_size=hidden_size, num_layers=num_layers, batch_first=batch_first)
+
+    def init_hidden_state(self, batch_size):
+        self.hidden_state = (torch.zeros(self.num_layers, batch_size, self.hidden_size), torch.zeros(self.num_layers, batch_size, self.hidden_size))
 
     def forward(self, x):
-        return self.lstm(x)
+        output, hidden_state = self.lstm(x, self.hidden_state)
+        self.hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())
+        return output[-1]
 
 
 class GraphConv(nn.Module):
