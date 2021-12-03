@@ -20,7 +20,10 @@ class BaseModel(nn.Module):
 
 
 class LSTM(BaseModel):
-    def __init__(self) -> None:
+    def __init__(self, input_size, hidden_size, num_layers, batch_first) -> None:
+        """
+        Wrapper for PyTorch implementation of LSTM to take advantage of save/load of BaseModel
+        """
         super().__init__()
         self.lstm = nn.LSTM(input_size=10, hidden_size=10, num_layers=2, batch_first=True)
 

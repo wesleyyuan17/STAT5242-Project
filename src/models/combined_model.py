@@ -19,7 +19,7 @@ class GraphLSTM(BaseModel):
             gcn_hidden_dim: int, (not supported) number of outputs in hidden dim each node in input is mapped to i.e. with n nodes, hidden layer has dimension n * gcn_hidden_dim
         """
         super().__init__()
-        self.lstm = nn.LSTM(input_size=14*n_features, hidden_size=lstm_hidden_dim, num_layers=lstm_n_layers, batch_first=True)
+        self.lstm = LSTM(input_size=14*n_features, hidden_size=lstm_hidden_dim, num_layers=lstm_n_layers, batch_first=True)
         self.gcn = GCN(n_features, gcn_pred_per_node)
 
         self.model_weights = nn.Parameter(torch.ones(2))
