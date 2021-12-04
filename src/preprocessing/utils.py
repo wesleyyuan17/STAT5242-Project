@@ -22,6 +22,18 @@ def EMA(df, window):
     return exp_ma
 
 
+def SMA(df, window):
+    """
+    Calculates exponential moving average given price data and sliding window size
+    """
+    sma = []
+    for i in range(df.shape[0]):
+        start_idx = max(0, i-window)
+        sma.append(df.iloc[start_idx:i]['VWAP'].mean())
+                       
+    return sma
+
+
 def EMA_5(df):
     return EMA(df, 5)
 
@@ -32,6 +44,18 @@ def EMA_20(df):
 
 def EMA_50(df):
     return EMA(df, 50)
+
+
+def SMA_5(df):
+    return SMA(df, 5)
+
+
+def SMA_20(df):
+    return SMA(df, 20)
+
+
+def SMA_50(df):
+    return SMA(df, 50)
 
 
 def RSI(df):
@@ -59,7 +83,23 @@ def BollingerBands(df):
     bb = []
     for i in range(df.shape[0]):
         start_idx = max(0, i-20)
-        window = df.iloc[i-20:i]
+        window = df.iloc[start_idx:i]
         vol = window['VWAP'].std()
         bb.append(vol)
     return bb
+
+
+def StochasticOscillator(df):
+    stochastics = []
+    for i in range(df.shape[0]):
+        if i < 14:
+            stochastics.append(np.nan)
+        else:
+            price_window = df.iloc[i-14:i]['VWAP']
+            close = price_window[-1]
+            low = price_window.min()
+            high = price_window.max()
+            pct_k = 100 * (close - low) / (high - low)
+            stochastics.append(pct_k)
+    
+    return stochastics
