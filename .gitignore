@@ -14,4 +14,4 @@
 *.fdb_latexmk
 *.fls
 *.log
-*.syntex.gz
+*.synctex.gz
