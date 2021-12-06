@@ -1,0 +1,55 @@
+\begin{thebibliography}{7}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Feng et~al.(2019)Feng, He, Wang, Luo, Liu, and Chua]{10.1145/3309547}
+F.~Feng, X.~He, X.~Wang, C.~Luo, Y.~Liu, and T.-S. Chua.
+\newblock Temporal relational ranking for stock prediction.
+\newblock 37\penalty0 (2), 2019.
+\newblock \doi{10.1145/3309547}.
+
+\bibitem[Li et~al.(2018)Li, Shen, and Zhu]{Li2018}
+H.~Li, Y.~Shen, and Y.~Zhu.
+\newblock Stock price prediction using attention-based multi-input lstm.
+\newblock In J.~Zhu and I.~Takeuchi, editors, \emph{Proceedings of The 10th
+  Asian Conference on Machine Learning}, volume~95 of \emph{Proceedings of
+  Machine Learning Research}, pages 454--469. PMLR, 14--16 Nov 2018.
+
+\bibitem[Matsunaga et~al.(2019)Matsunaga, Suzumura, and
+  Takahashi]{Matsunaga2019}
+D.~Matsunaga, T.~Suzumura, and T.~Takahashi.
+\newblock Exploring graph neural networks for stock market predictions with
+  rolling window analysis.
+\newblock \emph{CoRR}, abs/1909.10660, 2019.
+
+\bibitem[Peng(2021)]{Peng2021}
+S.~Peng.
+\newblock Stock forecasting using neural network with graphs.
+\newblock Master's thesis, University of York, York, England, May 2021.
+
+\bibitem[Selvin et~al.(2017)Selvin, Vinayakumar, Gopalakrishnan, Menon, and
+  Soman]{Selvin2017}
+S.~Selvin, R.~Vinayakumar, E.~A. Gopalakrishnan, V.~K. Menon, and K.~P. Soman.
+\newblock Stock price prediction using lstm, rnn and cnn-sliding window model.
+\newblock In \emph{2017 International Conference on Advances in Computing,
+  Communications and Informatics (ICACCI)}, pages 1643--1647, 2017.
+\newblock \doi{10.1109/ICACCI.2017.8126078}.
+
+\bibitem[Shen and Shafiq(2020)]{Shen2020}
+J.~Shen and M.~O. Shafiq.
+\newblock Short-term stock market price trend prediction using a comprehensive
+  deep learning system.
+\newblock \emph{Journal of Big Data}, 7\penalty0 (66), 2020.
+
+\bibitem[Sun et~al.(2020)Sun, Lin, and Zhou]{Sun2020}
+J.~Sun, J.~Lin, and Y.~Zhou.
+\newblock Multi-channel temporal graph convolutional network for stock return
+  prediction.
+\newblock In \emph{2020 IEEE 18th International Conference on Industrial
+  Informatics (INDIN)}, volume~1, pages 423--428, 2020.
+\newblock \doi{10.1109/INDIN45582.2020.9442196}.
+
+\end{thebibliography}
