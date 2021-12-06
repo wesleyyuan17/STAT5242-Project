@@ -1,93 +1,47 @@
 \documentclass[12pt]{article}
 
-% ready for submission
-\usepackage[preprint]{neurips_2021}
- 
-% \usepackage[margin=1in]{geometry} 
-\usepackage{graphicx}
-\usepackage{subcaption}
-\usepackage{amsmath,amsthm,amssymb}
-\usepackage{listings}
-\usepackage{color}
-\usepackage{fancyhdr}
-\usepackage{float}
-% \usepackage[round, authoryear]{natbib}
-\bibliographystyle{abbrvnat} % aer/natbib/others
-
-\definecolor{dkgreen}{rgb}{0,0.6,0}
-\definecolor{gray}{rgb}{0.5,0.5,0.5}
-\definecolor{mauve}{rgb}{0.58,0,0.82}
-
-\lstset{frame=tb,
-  language=Python,
-  aboveskip=3mm,
-  belowskip=3mm,
-  showstringspaces=false,
-  columns=flexible,
-  basicstyle={\small\ttfamily},
-  numbers=none,
-  numberstyle=\tiny\color{gray},
-  keywordstyle=\color{blue},
-  commentstyle=\color{dkgreen},
-  stringstyle=\color{mauve},
-  breaklines=true,
-  breakatwhitespace=true,
-  tabsize=3
-}
-
-\newcommand{\R}{\mathbb{R}}
-\newcommand{\I}{\mathbb{I}}
-\DeclareMathOperator*{\argmax}{arg\,max}
-\newcommand{\code}[1]{\lstinline|#1|}
+%% preamble
+\input{../00-prelim/preamble.tex}
 
 \begin{document}
 
-\title{Predicting Future Asset Returns with GCN and LSTM} %replace X with the appropriate number
-\author{%
-  Wesley Yuan \\
-  Department of Statistics \\
-  Columbia University \\
-  New York, NY, 10027 \\
-  \texttt{wy237@columbia.edu} \\
-  \And
-  Gurmeha Makker \\
-  Department of Statistics \\
-  Columbia University \\
-  New York, NY, 10027 \\
-  \texttt{gm2946@columbia.edu} \\
-  \And
-  Sierra Vo \\
-  Department of Statistics \\
-  Columbia University \\
-  New York, NY, 10027 \\
-  \texttt{tdv2104@columbia.edu} \\
-  \And
-  Aiden Kenny \\
-  Department of Statistics \\
-  Columbia University \\
-  New York, NY, 10027 \\
-  \texttt{apk2152@columbia.edu} \\
-}
+%% title and authors 
+\input{../00-prelim/title.tex}
 
-\maketitle
+%% abstract 
+\input{../00-prelim/abstract.tex}
 
-\begin{abstract}
-Placeholder
-\end{abstract}
+%% ----------------------------------------
+%  MAIN DOCUMENT 
+%% ----------------------------------------
 
-\section{Introduction}
+%% introduction 
+\input{../01-introduction/introduction.tex}
 
-The problem of predicting future returns given historical data for tradable assets has been extensively studied with many approaches having been explored. Traditional methods used time-series models such as ARIMA and GARCH to predict future price movements. Similarly, deep-learning models that can take advantage of temporal relations such as Long Short-Term Memory (LSTM) models have been applied to this problem with promising results. However, these methods fail to take into account the propagation of information through the market and the correlations of assets. In this aspect, Graph Convolutional Networks (GCN) has demonstrated good performance in regression problems. Combining these should allow for the capture and use of both intra-asset temporal and cross-asset relations to provide superior prediction performance.
+%% methods 
+\input{../02-methods/methods.tex}
 
-\subsection{Related Works}
+%% results 
+\input{../03-results/results.tex}
 
-\subsection{Dataset}
+%% discussion 
+\input{../04-discussion/discussion.tex}
 
-\section{Methods}
+%% ----------------------------------------
+% END OF DOCUMENT 
+%% ----------------------------------------
 
-\section{Results}
+%% bibliography
+\input{../05-bibliography/bibliography.tex}
 
-\section{Discussion}
+%% appendix 
+\input{../06-appendix/appendix.tex}
+
+\end{document}
+
+%% ----------------------------------------
+%  NOTES 
+%% ----------------------------------------
 
 %  Introduction section: describe the problem you are trying to solve, in 5-7 sentences. It is
 % understood that this text may change in the final report, but it doesn’t need to.
@@ -115,13 +69,3 @@ The problem of predicting future returns given historical data for tradable asse
 % for further work (after the semester) do you see for this project? Some of this section will be
 % incomplete or speculative since the project is still underway, and that is acceptable (of course
 % it should be complete upon final project submission).
-
-\nocite{*}
-
-\bibliography{report}
-
-\appendix
-
-\section{Appendix}
-
-\end{document}
