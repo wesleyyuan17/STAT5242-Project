@@ -1,0 +1,71 @@
+\documentclass[12pt]{article}
+
+%% preamble
+\input{../00-prelim/preamble.tex}
+
+\begin{document}
+
+%% title and authors 
+\input{../00-prelim/title.tex}
+
+%% abstract 
+\input{../00-prelim/abstract.tex}
+
+%% ----------------------------------------
+%  MAIN DOCUMENT 
+%% ----------------------------------------
+
+%% introduction 
+\input{../01-introduction/introduction.tex}
+
+%% methods 
+\input{../02-methods/methods.tex}
+
+%% results 
+\input{../03-results/results.tex}
+
+%% discussion 
+\input{../04-discussion/discussion.tex}
+
+%% ----------------------------------------
+% END OF DOCUMENT 
+%% ----------------------------------------
+
+%% bibliography
+\input{../05-bibliography/bibliography.tex}
+
+%% appendix 
+\input{../06-appendix/appendix.tex}
+
+\end{document}
+
+%% ----------------------------------------
+%  NOTES 
+%% ----------------------------------------
+
+%  Introduction section: describe the problem you are trying to solve, in 5-7 sentences. It is
+% understood that this text may change in the final report, but it doesn’t need to.
+% (c) Introduction section: describe the papers that you have read and used to inform your work
+% here. Create a bibliography containing these references, and include some sentences on how
+% these papers are related and how you used them to build your project. If you used an online
+% resource (such as a tf.agents tutorial or something similar) as a starting point, you should
+% include that as a reference also.
+% (d) Introduction section: describe the data you have for this problem. For example, how many
+% training/validation/test samples do you have? What are the dimensionalities of the inputs and
+% outputs? If an RL problem, what are the details of the states/actions/rewards?
+% (e) Methods section: what is your starting point? For example, will a simple logistic regression
+% get you started? What approaches already exist to solve this problem, and how difficult are
+% they to implement? Describe in 3-5 sentences what first steps you have taken to start from
+% something simple and move to more complex networks. This progression, as we have discussed
+% in class on several occasions, is critical to empiricism and working with deep learning.
+% (f) Methods section: what architectures/problem setups will you try to get you from this simple
+% method to your end goal? For example, will you use dropout or batch normalization, will you
+% implement a custom tf.agent, or otherwise? Note it is not necessary to make these choices
+% final; this part is about showing progress.
+% (g) Results section: what results do you intend to incluude, and why will they demonstrate success?
+% Add a list of your intended results and what you hope they will show. If you have early results,
+% you may include figures demonstrating the results (optional).
+% (h) Discussion section: what are the important takeaways from your work? what problems/opportunity
+% for further work (after the semester) do you see for this project? Some of this section will be
+% incomplete or speculative since the project is still underway, and that is acceptable (of course
+% it should be complete upon final project submission).

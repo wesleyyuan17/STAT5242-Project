@@ -1,0 +1,78 @@
+% ready for submission
+\usepackage[preprint]{neurips_2021}
+ 
+% \usepackage[margin=1in]{geometry} 
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{color}
+\usepackage{fancyhdr}
+\usepackage{float}
+% \usepackage[round, authoryear]{natbib}
+\bibliographystyle{abbrvnat} % aer/natbib/others
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+%% environment for coding
+\usepackage{listings}
+\lstset{frame=tb,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+\newcommand{\code}[1]{\lstinline|#1|}
+
+%% 
+%  CUSTOM LATEX MATH COMMANDS 
+%% 
+
+%% for vectors, matrices, tensors, and random vectors 
+\newcommand{\mVector}[1]
+{
+    \ifcat\noexpand#1\relax
+        \bm{#1}
+    \else
+        \mathbf{#1}
+    \fi
+}
+\newcommand{\mMatrix}[1]{\mathbf{#1}}
+\newcommand{\mTensor}[1]{\bm{\mathscr{#1}}}
+\newcommand{\rVector}[1]{\bm{#1}}
+
+%% commands to have blackboard fonts for standard probability stuff (e.g. expected value, variance)
+\newcommand{\pr}{\mathbb{P}}
+\newcommand{\ev}{\mathbb{E}}
+\newcommand{\var}{\mathbb{V}\mathrm{ar}}
+\newcommand{\cov}{\mathbb{C}\mathrm{ov}}
+\newcommand{\cor}{\mathbb{C}\mathrm{or}}
+\newcommand{\bias}{\mathbb{B}\mathrm{ias}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\I}{\mathbb{I}}
+
+%% renewing binomial coefficient, this looks better 
+\renewcommand{\binom}[2]{
+    \begin{pmatrix}
+        #1 \\ #2
+    \end{pmatrix}
+}
+
+%% command for indicator functions, need bb font for numbers 
+\usepackage{bbm}
+\newcommand{\ind}{ \mathbbm{1} }
+
+%% defining argmin and argmax functions
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
