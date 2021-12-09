@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import json
 from tqdm import tqdm
 import argparse
 
@@ -83,7 +84,7 @@ def plot_loss(losses):
     fig.savefig('figures/loss.png') # can be a variable command line arg or something
 
 
-def main(mode):
+def main(mode, technicals):
     print('Creating model...')
     if mode == 'lstm':
         model = LSTM(input_size=98, hidden_size=14, batch_first=True)
@@ -96,9 +97,9 @@ def main(mode):
     print('Creating dataset...')
     if model == 'gcn':
         # gcn only takes one market state at a time for now
-        dataset = get_crypto_dataset(seq_len=1)
+        dataset = get_crypto_dataset(seq_len=1, technicals=technicals)
     else:
-        dataset = get_crypto_dataset(seq_len=10)
+        dataset = get_crypto_dataset(seq_len=10, technicals=technicals)
     print('Dataset created.\n')
     optimizer = optim.Adam(model.parameters(), lr=1e-3) # can play around with this one
     criterion = nn.MSELoss() # regression problem, could just be MSE?
@@ -116,6 +117,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--training_mode', dest='mode', required=True, choices=['lstm', 'gcn', 'combined'], 
                         help='Which model is going to be trained')
+    parser.add_argument('--feature_config', dest='feature_config', required=True, 
+                        help='json file with mapping of names of features to functions that create feature')  
     args = parser.parse_args()
 
-    main(args.mode)
+    with open(args.feature_config, 'r') as file:
+        config = json.load(file)
+
+    for k, v in config.items():
+        config[k] = eval(v)
+
+    main(args.mode, config)

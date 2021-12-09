@@ -1,0 +1,11 @@
+{
+    "ema5": "EMA_5",
+    "ema20": "EMA_20",
+    "ema50": "EMA_50",
+    "sma5": "SMA_5",
+    "sma20": "SMA_20",
+    "sma50": "SMA_50",
+    "rsi": "RSI",
+    "bollinger": "BollingerBands",
+    "stochastics": "StochasticOscillator"
+}
