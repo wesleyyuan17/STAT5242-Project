@@ -1,15 +1,73 @@
 \section{Introduction}
 
 The problem of predicting future returns given historical data for tradable assets has been extensively studied 
-with many approaches having been explored. 
-Traditional methods used time-series models such as ARIMA and GARCH to predict future price movements. 
-Similarly, deep-learning models that can take advantage of temporal relations such as Long Short-Term Memory (LSTM) models 
-have been applied to this problem with promising results. 
-However, these methods fail to take into account the propagation of information through the market and the correlations of assets. 
-In this aspect, Graph Convolutional Networks (GCN) has demonstrated good performance in regression problems. 
-Combining these should allow for the capture and use of both intra-asset temporal and cross-asset relations 
-to provide superior prediction performance.
+with many approaches having been explored. Traditional methods used time-series models such as ARIMA and GARCH to predict future price movements. Similarly, deep-learning models that can take advantage of temporal relations such as Long Short-Term Memory (LSTM) models have been applied to this problem with promising results. 
+However, these methods fail to take into account the propagation of information through the market and the correlations of assets. In this aspect, Graph Convolutional Networks (GCN) has demonstrated good performance in regression problems. Combining these should allow for the capture and use of both intra-asset temporal and cross-asset relations to provide superior prediction performance.
 
 \subsection{Related Works}
 
+
+
 \subsection{Dataset}
+
+The dataset used for this project is the G-Research Crypto Dataset which contains minute-level price data for 14 commonly traded crypto assets. For each minute, the open, high, low, and close prices for the past minute are provided as well as the total volume, number of trades, and the volume weighted average price (VWAP). The target variable is the 15 minute return of the given asset. Due to computational constraints, we utilize the latest 100k timestamps available for our study.
+
+In total, about 3\% of the Target values and a near zero number of VWAP values are missing. These missing values are largely the result of insufficient data on assets earlier in the time window from which the data was collected while the last 15 values are all missing (most likely to prevent information leaking). These missing values do not affect our study due to us not utilizing earlier data where the majority of missing values are. The last 15 are forward-filled.
+
+We build other 
+
+\subsection{Background}
+
+\subsubsection{LSTM}
+
+% can cite same papers as Feng2019 if desired
+
+LSTM models are a special kind of Recurrent Neural Network (RNN) model which feature evolving hidden states that capture time-dependencies in sequential inputs. As such, these models have been widely popular in processing sequential data such as speech, text, and video. They solve the main drawback of other RNN models of not being able to caputre long-term dependencies by introducing a "memroy gate" and a "forget gate" to better persist relevant information and discard irrelevant information, respectively. 
+
+A standard LSTM model will have the following components
+
+\begin{enumerate}
+	\item Some input at every time step $x_t \in \R^{D_f}$ where $D_f$ is the embedding dimension of the features
+	\item A memory state $c_t \in \R^{D_h}$ and a hidden state $h_t \in \R^{D_h}$ where $D_h$ is the number of units in the hidden dimension (typically user-defined)
+	\item Input cell $i_t \in \R^{D_h}$ that controls what relevant information from previous states and new input is passed forward
+	\item Some intermediate states $z_t, c_t \in \R^{D_h}$
+	\item Output cell $o_t \in \R^{D_h}$ that controls what relevant information from intermediate steps makes it to the next time step
+	\item Forget cell $f_t \in \R^{D_h}$ that controls what information is discarded going forward
+\end{enumerate}
+
+The typical operations in a single LSTM step are as follows
+
+\begin{align*}
+f_t & = \sigma(W_fx_t + Q_fh_{t-1} + b_f) \\
+i_t & = \sigma(W_ix_t + Q_ih_{t-1} + b_i) \\
+z_t & = \tanh(W_cx_t + Q_ch_{t-1} + b_c) \\
+c_t & = f_t * C_{t-1} + i_t * z_t \\
+o_t & = \sigma(W_ox_t + Q_oh_{t-1} + b_o) \\
+h_t & = o_t * \tanh(c_t)
+\end{align*}
+
+where $W_* \in \R^{D_h \times D_f}$, $Q_* \in \R^{D_h \times D_h}$, and $b_* \in R^{D_h}$ are learnable parameters and $\sigma$ denotes some user-specified activation function.
+
+\subsubsection{Graph Neural Networks}
+
+% https://distill.pub/2021/gnn-intro/
+
+Graph neural networks (GNN) is the application of neural networks to learning graph problems such as link prediction, node classification, etc. These models have achieved state-of-the-art performance on graph problems as well as regression/classification on data with natural graph structure (such as review data, word nets, social networks, etc.). GNN are typically classified according to the scope of their learning, either node-level or graph-level where graph-level GNN add more sophisticated pooling to node-level GNN to make global predictions. 
+
+GNN's main improvement over standard deep learning methods is the focus on learning embeddings of nodes, edges, or subgraphs that preserve structure such as permutation invariances. This can be done by having separate models for each component of a graph (nodes, edges, global) that are able to better capture information than using a single model on a simpler representations (such as adjacency matrices/lists). A convenient viewpoint is that of the encoder-decoder model taken in \cite{Hamilton2017} where any given task has an encoder that learns the embeddings of the graph components and a decoder that learns the mapping from the embeddings to the targets. Thus, given a graph $\mathcal{G} = (\mathcal{V}, \mathcal{E})$, with $v_i, v_j \in \mathcal{V}$, and $s_{\mathcal{G}}$ being some structure of the graph, the model is given by
+
+\begin{equation}
+s_{\mathcal{G}}(v_i, v_j) \approx \text{Decode}(\text{Encode}(v_i), \text{Encode}(v_j))
+\end{equation}
+
+For example, setting $s_{\mathcal{G}}(v_i, v_j) = A_{i,j}$ would give the problem of predicting the connections in the graph.
+
+Graph connectivity is utilized in pooling the outputs of these separate models between layers. For node prediction tasks this would entail pooling edge information at the connected node whereas for edge prediction tasks the information is pooled from nodes that the edge connects. This pooling between neighboring components also performs an implicit message passing whereby component embeddings affect the updates of those they are connected to. Let $\pmb{x}_i^{l}$ be the encoding after the $l$-th message passing layer, then the update to the embedding is given by
+
+\begin{equation}
+\pmb{x}_i^{l+1} = \pmb{W}^{l}x_i^{l} + \text{Aggregate}(\pmb{x}_j^{l}),\ j \in Ne(v_i)
+\end{equation}
+
+where Aggregate is some aggregation function, $\pmb{W}^{l}$ is a learned weights matrix, and $Ne(v_i)$ denotes the neighbors of node $v_i$.
+
+The level of message passing is largely determined by the number of GNN layers, with more layers allowing for greater aggregation) and the aggregation function used in pooling the embeddings (with more complicated aggregation schemes allowing for greater information flow).

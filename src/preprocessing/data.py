@@ -2,7 +2,8 @@ import pandas as pd
 import os
 
 from torch.utils.data import IterableDataset
-from utils import *
+
+from .utils import *
 
 
 LOCAL_PATH_TO_DIR = '~/Documents/Academics/Columbia/2021/2021 Fall/Advanced ML/Final Project'
@@ -17,28 +18,42 @@ class CryptoFeed(IterableDataset):
             df: pandas Dataframe, contains price data on crypto assets. Assumes 
             technicals: dict, string (key) mapped to function (value) that calculates technical indicator from df
         """
-        df.sort_values(['timestamp', 'Asset_ID'], inplace=True)
-        
-        self.id_to_name = dict(zip(df['Asset_ID'], df['Asset_Name']))
-        self.data = [df[df['Asset_ID'] == i].copy() for i in sorted(df['Asset_ID'].unique())]
-        self.targets = pd.concat([tdf.set_index('timestamp')['Target'] for tdf in self.data], axis=1)
+        if os.path.exists('../data/filtered_transformed_data.csv'):
+            df = pd.read_csv('../data/filtered_transformed_data.csv')
+            self.features = df.iloc[:, :-14] # last 14 should be targets of the market state
+            self.targets = df.iloc[:, -14:] # last 14 should be targets of the market state
+            self.log_returns = pd.read_csv('../data/filtered_log_returns.csv')
+        else:
+            df.sort_values(['timestamp', 'Asset_ID'], inplace=True)
+            
+            self.id_to_name = dict(zip(df['Asset_ID'], df['Asset_Name']))
+            self.data = [df[df['Asset_ID'] == i].copy() for i in sorted(df['Asset_ID'].unique())]
+            self.targets = pd.concat([tdf.set_index('timestamp')['Target'] for tdf in self.data], axis=1)
+            self.log_returns = pd.concat([tdf.set_index('timestamp')['Close'] for tdf in self.data], axis=1)
+            self.log_returns = np.log(self.log_returns) - np.log(self.log_returns.shift(1))
 
-        if technicals is not None:
+            if technicals is not None:
+                for tdf in self.data:
+                    for k, v in technicals.items():
+                        tdf[k] = v(tdf)
             for tdf in self.data:
-                for k, v in technicals.items():
-                    tdf[k] = v(tdf)
-        for tdf in self.data:
-            tdf.set_index('timestamp', inplace=True)
-        for col in ['timestamp', 'Asset_ID', 'Asset_Name', 'Target']:
-            for tdf in self.data:
-                if col in tdf.columns:
-                    tdf.drop(col, axis=1, inplace=True)
+                tdf.set_index('timestamp', inplace=True)
+            for col in ['timestamp', 'Asset_ID', 'Asset_Name', 'Target']:
+                for tdf in self.data:
+                    if col in tdf.columns:
+                        tdf.drop(col, axis=1, inplace=True)
 
-        self.features = pd.concat(self.data, axis=1)
+            self.features = pd.concat(self.data, axis=1)
 
-        # only use last 100k
-        self.features = self.features.iloc[-100000:]
-        self.targets = self.targets.iloc[-100000:]
+            # only use last 100k
+            self.features = self.features.iloc[-100000:]
+            self.targets = self.targets.iloc[-100000:]
+            self.log_returns = self.log_returns.iloc[-100000:]
+
+            # save to file so only do once
+            output = pd.concat([self.features, self.targets], axis=1)
+            output.to_csv('../data/filtered_transformed_data.csv')
+            self.log_returns.to_csv('../data/filtered_log_returns.csv')
                         
         self.seq_len = seq_len
         self.valid_dates = list(self.features.index)
@@ -52,7 +67,7 @@ class CryptoFeed(IterableDataset):
             dates_idx = self.valid_dates[i-self.seq_len:i]
             features = self.features.loc[dates_idx].values
             target = self.targets.loc[dates_idx[-1]].values # target is target of end of window
-            adj = self.targets.loc[dates_idx].corr().fillna(value=0).values # correlation matrix between previous seq_len target values
+            adj = self.log_returns.loc[dates_idx].corr().fillna(value=0).values # correlation matrix between previous seq_len target values
             yield features, target, adj
 
 

@@ -67,11 +67,15 @@ def RSI(df):
     for i in range(df.shape[0]):
         if i < 15:
             rsi.append(0)
-        window = df.iloc[i-15:i]
-        changes = window['VWAP'].pct_change()
-        avg_gain = changes[changes > 0].sum() / 14
-        avg_loss = np.abs(changes[changes < 0].sum()) / 14
-        rsi.append( 100 - 100 / (1 + avg_gain/avg_loss) )
+        else:
+            window = df.iloc[i-15:i]
+            changes = window['VWAP'].pct_change()
+            avg_gain = changes[changes > 0].sum() / 14
+            avg_loss = np.abs(changes[changes < 0].sum()) / 14
+            if avg_loss > 0:
+                rsi.append( 100 - 100 / (1 + avg_gain/avg_loss) )
+            else:
+                rsi.append(100)
     return rsi
 
 
@@ -95,7 +99,7 @@ def StochasticOscillator(df):
         if i < 14:
             stochastics.append(np.nan)
         else:
-            price_window = df.iloc[i-14:i]['VWAP']
+            price_window = df.iloc[i-14:i]['VWAP'].values
             close = price_window[-1]
             low = price_window.min()
             high = price_window.max()

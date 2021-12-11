@@ -11,7 +11,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from preprocessing.data import CryptoFeed, get_crypto_dataset
+from preprocessing.data import get_crypto_dataset
+from preprocessing.utils import *
 from models.components import GCN, LSTM
 from models.combined_model import GraphLSTM
 
@@ -87,11 +88,11 @@ def plot_loss(losses):
 def main(mode, technicals):
     print('Creating model...')
     if mode == 'lstm':
-        model = LSTM(input_size=98, hidden_size=14, batch_first=True)
+        model = LSTM(input_size=98+14*len(technicals), hidden_size=14, batch_first=True)
     elif mode == 'gcn':
-        model = GCN(n_features=7, n_pred_per_node=1)
+        model = GCN(n_features=7+len(technicals), n_pred_per_node=1)
     else:
-        model = GraphLSTM(n_features=7, lstm_hidden_dim=14, gcn_pred_per_node=1)
+        model = GraphLSTM(n_features=7+len(technicals), lstm_hidden_dim=14, gcn_pred_per_node=1)
     model.float()
     print('Model created.\n')
     print('Creating dataset...')
@@ -117,11 +118,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--training_mode', dest='mode', required=True, choices=['lstm', 'gcn', 'combined'], 
                         help='Which model is going to be trained')
-    parser.add_argument('--feature_config', dest='feature_config', required=True, 
+    parser.add_argument('--technicals_config', dest='technicals_config', required=True, 
                         help='json file with mapping of names of features to functions that create feature')  
     args = parser.parse_args()
 
-    with open(args.feature_config, 'r') as file:
+    with open(args.technicals_config, 'r') as file:
         config = json.load(file)
 
     for k, v in config.items():
