@@ -71,3 +71,12 @@ Graph connectivity is utilized in pooling the outputs of these separate models b
 where Aggregate is some aggregation function, $\pmb{W}^{l}$ is a learned weights matrix, and $Ne(v_i)$ denotes the neighbors of node $v_i$.
 
 The level of message passing is largely determined by the number of GNN layers, with more layers allowing for greater aggregation) and the aggregation function used in pooling the embeddings (with more complicated aggregation schemes allowing for greater information flow).
+
+Graph convolutional networks (GCN) add an additional layer of complexity as it takes in a node feature vector and an adjacency matrix at every step to provide improved context for the message-passing steps. Given the adjacency matrix $A \in \R^{n \times n}$, we add self-connections to get $\tilde{A} = A + I_n$ where $I_n$ is the $n \times n$ identity matrix. We can then construct the diagonal degree matrix $\tilde{D}$ where $\tilde{D}_{ii} = \sum_i\tilde{A}$. Then the propagation rule introduced in \cite{Kipf2017} is
+
+\begin{equation}
+f(H^{(l)}, A) = \sigma(\tilde{D}^{-\frac{1}{2}}\tilde{A}\tilde{D}^{-\frac{1}{2}}H^{(l)}W^{(l)})
+\end{equation}
+
+where $H^{(l)}$ is the activations of layer $l$ and $H^{(0)} = X$ i.e. the node feature vector and $W^{(l)}$ is a learnable weights matrix.
+
