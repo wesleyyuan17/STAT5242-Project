@@ -38,10 +38,10 @@ class GraphLSTM(BaseModel):
         self.lstm_hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())
 
         # feed through gcn
-        gcn_output = self.gcn(x[-1], adj) # -1 to get latest state since gcn rn takes in just one day's price data
+        gcn_output = self.gcn(x[:, -1, :], adj) # -1 to get latest state since gcn rn takes in just one day's price data
 
         # combine using learnable weights
-        self.model_weights /= self.model_weights.sum() # normalize to sum to 1
+        self.model_weights = nn.Parameter(self.model_weights / self.model_weights.sum()) # normalize to sum to 1, wrap to be parameter
         final_output = self.model_weights[0]*lstm_output + self.model_weights[1]*gcn_output
 
         return final_output

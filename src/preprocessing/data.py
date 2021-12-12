@@ -19,9 +19,9 @@ class CryptoFeed(IterableDataset):
             technicals: dict, string (key) mapped to function (value) that calculates technical indicator from df
         """
         if os.path.exists('data/filtered_features.csv'):
-            self.features = pd.read_csv('../data/filtered_features.csv')
-            self.targets = pd.read_csv('../data/filtered_targets.csv')
-            self.log_returns = pd.read_csv('../data/filtered_log_returns.csv')
+            self.features = pd.read_csv('data/filtered_features.csv').set_index('timestamp')
+            self.targets = pd.read_csv('data/filtered_targets.csv').set_index('timestamp')
+            self.log_returns = pd.read_csv('data/filtered_log_returns.csv').set_index('timestamp')
         else:
             # only use last 100k timesteps to save computation time
             accepted_timestamp_threshold = sorted(df['timestamp'].unique())[-100000]
@@ -54,6 +54,11 @@ class CryptoFeed(IterableDataset):
             self.features.to_csv('data/filtered_features.csv')
             self.targets.to_csv('data/filtered_targets.csv')
             self.log_returns.to_csv('data/filtered_log_returns.csv')
+
+        # last cleaning for any nan's produced in feature engineering
+        self.features.fillna(0, inplace=True)
+        self.targets.fillna(0, inplace=True)
+        self.log_returns.fillna(0, inplace=True)
                         
         self.seq_len = seq_len
         self.valid_dates = list(self.features.index)

@@ -34,10 +34,14 @@ class LSTM(BaseModel):
     def initialize_hidden_state(self, batch_size):
         self.hidden_state = (torch.zeros(self.num_layers, batch_size, self.hidden_size), torch.zeros(self.num_layers, batch_size, self.hidden_size))
 
-    def forward(self, x):
+    def forward(self, x, hidden_state=None):
+        if hidden_state is None:
+            self.initialize_hidden_state(x.shape[0])
+        else:
+            self.hidden_state = hidden_state
         output, hidden_state = self.lstm(x, self.hidden_state)
         self.hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())
-        return output[-1] # just output of last in sequence
+        return output[-1], self.hidden_state # just output of last in sequence
 
 
 class GraphConv(nn.Module):

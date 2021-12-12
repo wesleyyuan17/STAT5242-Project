@@ -53,7 +53,7 @@ def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={
 
             if mode == 'lstm':
                 # lstm only takes in sequence of features
-                output, hidden_state = model(features, hidden_state)
+                output, hidden_state = model(features)
                 hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())
                 output = output[-1]
             else:
