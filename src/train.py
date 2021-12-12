@@ -17,7 +17,7 @@ from models.components import GCN, LSTM
 from models.combined_model import GraphLSTM
 
 
-def train(model, dataset, optimizer, criterion, epochs=2, dl_kws={}, return_all=False, mode='combined'):
+def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={}, return_all=False, mode='combined'):
     """
     Function that trains a given model on a given dataset using user-defined optimizer/criterion
 
@@ -31,7 +31,7 @@ def train(model, dataset, optimizer, criterion, epochs=2, dl_kws={}, return_all=
         return_all: bool, for debugging purposes - if True will return all objects to help observe states
         mode: str, whether training is on lstm, gcn, or a combined model
     """
-    dataloader = DataLoader(dataset, batch_size=1, **dl_kws)
+    dataloader = DataLoader(dataset, batch_size=batch_size, **dl_kws)
     steps_per_epoch = len(dataloader)
 
     model.train()
@@ -40,9 +40,10 @@ def train(model, dataset, optimizer, criterion, epochs=2, dl_kws={}, return_all=
 
         print('Starting epoch {}...'.format(e))
 
-        if mode == 'lstm':
+        if mode != 'gcn':
             # need to initialize hidden state
-            hidden_state = (torch.zeros(1, 1, 14), torch.zeros(1, 1, 14))
+            # hidden_state = (torch.zeros(1, 1, 14), torch.zeros(1, 1, 14))
+            model.initialize_hidden_state(batch_size)
 
         # add tqdm for progress tracking if desired
         epoch_avg_loss = 0

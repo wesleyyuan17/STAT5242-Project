@@ -18,13 +18,17 @@ class CryptoFeed(IterableDataset):
             df: pandas Dataframe, contains price data on crypto assets. Assumes 
             technicals: dict, string (key) mapped to function (value) that calculates technical indicator from df
         """
-        if os.path.exists('../data/filtered_transformed_data.csv'):
-            df = pd.read_csv('../data/filtered_transformed_data.csv')
-            self.features = df.iloc[:, :-14] # last 14 should be targets of the market state
-            self.targets = df.iloc[:, -14:] # last 14 should be targets of the market state
+        if os.path.exists('data/filtered_features.csv'):
+            self.features = pd.read_csv('../data/filtered_features.csv')
+            self.targets = pd.read_csv('../data/filtered_targets.csv')
             self.log_returns = pd.read_csv('../data/filtered_log_returns.csv')
         else:
-            df.sort_values(['timestamp', 'Asset_ID'], inplace=True)
+            # only use last 100k timesteps to save computation time
+            accepted_timestamp_threshold = sorted(df['timestamp'].unique())[-100000]
+            df = df[df['timestamp'] > accepted_timestamp_threshold]
+
+            # sort so timestamps are in order for later technical creation
+            df = df.sort_values(['timestamp', 'Asset_ID']) # not using in-place to avoid setting values on copy of df warning
             
             self.id_to_name = dict(zip(df['Asset_ID'], df['Asset_Name']))
             self.data = [df[df['Asset_ID'] == i].copy() for i in sorted(df['Asset_ID'].unique())]
@@ -34,6 +38,7 @@ class CryptoFeed(IterableDataset):
 
             if technicals is not None:
                 for tdf in self.data:
+                    print(tdf['Asset_Name'].unique()) # for tracking progress, comment out later
                     for k, v in technicals.items():
                         tdf[k] = v(tdf)
             for tdf in self.data:
@@ -45,15 +50,10 @@ class CryptoFeed(IterableDataset):
 
             self.features = pd.concat(self.data, axis=1)
 
-            # only use last 100k
-            self.features = self.features.iloc[-100000:]
-            self.targets = self.targets.iloc[-100000:]
-            self.log_returns = self.log_returns.iloc[-100000:]
-
             # save to file so only do once
-            output = pd.concat([self.features, self.targets], axis=1)
-            output.to_csv('../data/filtered_transformed_data.csv')
-            self.log_returns.to_csv('../data/filtered_log_returns.csv')
+            self.features.to_csv('data/filtered_features.csv')
+            self.targets.to_csv('data/filtered_targets.csv')
+            self.log_returns.to_csv('data/filtered_log_returns.csv')
                         
         self.seq_len = seq_len
         self.valid_dates = list(self.features.index)

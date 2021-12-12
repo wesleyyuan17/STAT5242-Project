@@ -31,7 +31,7 @@ class LSTM(BaseModel):
 
         self.lstm = nn.LSTM(input_size=input_size, hidden_size=hidden_size, num_layers=num_layers, batch_first=batch_first)
 
-    def init_hidden_state(self, batch_size):
+    def initialize_hidden_state(self, batch_size):
         self.hidden_state = (torch.zeros(self.num_layers, batch_size, self.hidden_size), torch.zeros(self.num_layers, batch_size, self.hidden_size))
 
     def forward(self, x):
@@ -80,8 +80,9 @@ class GraphConv(nn.Module):
             
             a.type(self.weight.dtype)
             
-            d_inv = np.linalg.inv( torch.diag(torch.sum(a, axis=1)) )
-            sqrt_d_inv = torch.tensor(sqrtm(d_inv), dtype=self.weight.dtype)
+            # d_inv = np.linalg.inv( torch.diag(torch.sum(a, axis=1)) )
+            # sqrt_d_inv = torch.tensor(sqrtm(d_inv), dtype=self.weight.dtype)
+            sqrt_d_inv = torch.diag( torch.sqrt(1 / torch.sum(a, axis=1)) ) # simple since inverse of diagonal matrix
     
         x = torch.matmul(x, self.weight)
         output = torch.matmul(torch.mm(torch.mm(sqrt_d_inv, a), sqrt_d_inv), x)
