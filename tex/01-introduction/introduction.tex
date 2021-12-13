@@ -1,14 +1,24 @@
-\section{Introduction}
+\section{Introduction} \label{Introduction}
 
 The problem of predicting future returns given historical data for tradable assets has been extensively studied 
 with many approaches having been explored. Traditional methods used time-series models such as ARIMA and GARCH to predict future price movements. Similarly, deep-learning models that can take advantage of temporal relations such as Long Short-Term Memory (LSTM) models have been applied to this problem with promising results. 
 However, these methods fail to take into account the propagation of information through the market and the correlations of assets. In this aspect, Graph Convolutional Networks (GCN) has demonstrated good performance in regression problems. Combining these should allow for the capture and use of both intra-asset temporal and cross-asset relations to provide superior prediction performance.
 
-\subsection{Related Works}
+\subsection{Related Works} \label{Related Works}
 
+The application of deep learning in asset price predictions is a popular area of ongoing research with most works utilizing variations of Recurrent Neural Network (RNN) models which can learn temporal relationships.
 
+The authors of \cite{Shen2020} develop a custom deep learning pipeline from feature extraction to final prediction. They apply typical transformations such as scaling and calculating technical indicators on price data before combining with company financial data as features that are filtered through recursive feature elimination and PCA before being fed into an LSTM final prediction model. Their work focuses on select single-name stocks from the Chinese stock market and achieves 87\% accuracy on directional predictions on their dataset.
 
-\subsection{Dataset}
+Other works focus on specific parts of the prediction pipeline rather than developing it end-to-end. \cite{Li2018} expand on the vanilla LSTM model to allow for multiple inputs at each step for prediction. The proposed multi-input LSTM model combines low-correlated factors through additional "input gates" (for more detailed description of LSTM model see section \ref{LSTM}). The authors test their architecture on stocks in the CSI-300 index and achieve a 10\% improvement on MSE compared to other state-of-the-art LSTM architectures. Their work shows that additional contextual information can be used to improve performance of stock prediction models.
+
+\cite{Selvin2017} looked to compare the LSTM model with other temporal models such as other RNN architectures as well as sliding window Convolutional Neural Network (CNN) models. The authors tested each of the three models on select single-name stocks (Infosys, TCS, Cipla) and measured their error percentage. They show that deep learning models are able to effectively capture stock price dynamics and that temporal information is highly useful in making future predictions.
+
+The combination of LSTM models and graphical models has been a growing topic of interest as more researchers look to combine the performance of LSTM models in sequential data prediction tasks and the ability of graph models to capture cross-asset dependenceis.
+
+To do: small write ups on \cite{Matsunaga2019}, \cite{Feng2019}, \cite{Sun2020}, \cite{Hou2021}, and \cite{Peng2021} that combine LSTM and graph models.
+ 
+\subsection{Dataset} \label{Dataset}
 
 The dataset used for this project is the G-Research Crypto Dataset which contains minute-level price data for 14 commonly traded crypto assets. For each minute, the open, high, low, and close prices for the past minute are provided as well as the total volume, number of trades, and the volume weighted average price (VWAP). The target variable is the 15 minute return of the given asset. Due to computational constraints, we utilize the latest 100k timestamps available for our study.
 
@@ -16,9 +26,9 @@ In total, about 3\% of the Target values and a near zero number of VWAP values a
 
 We build other 
 
-\subsection{Background}
+\subsection{Background} \label{Background}
 
-\subsubsection{LSTM}
+\subsubsection{LSTM} \label{LSTM}
 
 % can cite same papers as Feng2019 if desired
 
