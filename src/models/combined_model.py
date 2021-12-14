@@ -36,11 +36,11 @@ class AdditiveGraphLSTM(BaseModel):
 
     def forward(self, x, adj):
         # feed through lstm
-        lstm_output, hidden_state = self.lstm(x, self.lstm_hidden_state)
+        lstm_output, hidden_state = self.lstm(x, self.lstm_hidden_state) # lstm wrapper only returns last output, don't need to index later
         self.lstm_hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())
 
         # feed through gcn
-        gcn_output = self.fc( self.gcn(x[:, -1, :], adj).view(self.batch_size, -1) ) # get latest state since gcn rn takes in just one day's price data, flatten output
+        gcn_output = self.fc( self.gcn(x[:, -1, :], adj).view(self.batch_size, -1) ) # get latest state since gcn rn takes in just one day's price data, flatten before fc
 
         # combine using learnable weights
         self.model_weights = nn.Parameter(self.model_weights / self.model_weights.sum()) # normalize to sum to 1, wrap to be parameter
@@ -75,7 +75,7 @@ class SequentialGraphLSTM(BaseModel):
             seq_embeddings.append(lstm_output) # lstm wrapper only returns last output
         gcn_input = torch.cat(seq_embeddings) # should be 14xlstm_hidden_dim here
         gcn_output = self.gcn(gcn_input, adj)
-        final_output = self.fc(gcn_output.view(self.batch_size, -1))
+        final_output = self.fc(gcn_output.view(self.batch_size, -1)) # flatten except for batch dim
         return final_output
 
 
