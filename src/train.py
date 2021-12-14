@@ -107,10 +107,10 @@ def main(mode, technicals, epochs):
         # gcn only takes one market state at a time for now
         dataset = get_crypto_dataset(seq_len=1, technicals=technicals)
     else:
-        dataset = get_crypto_dataset(seq_len=10, technicals=technicals)
+        dataset = get_crypto_dataset(seq_len=10, technicals=technicals) # length 10 window was good in other papers, could tune if desired
     print('Dataset created.\n')
     optimizer = optim.Adam(model.parameters(), lr=1e-3) # can play around with this one
-    criterion = nn.MSELoss() # regression problem, could just be MSE?
+    criterion = nn.MSELoss() # regression problem so going just with MSE
 
     print('Starting training...')
     model, losses = train(model, dataset, optimizer, criterion, epochs=epochs, mode=mode) # change up number of epochs depending on loss plot
