@@ -95,7 +95,7 @@ def main(mode, technicals):
     elif mode == 'additive':
         model = AdditiveGraphLSTM(n_features=7+len(technicals), lstm_hidden_dim=14, gcn_pred_per_node=1)
     else:
-        model = SequentialGraphLSTM()
+        model = SequentialGraphLSTM(n_features=7+len(technicals), lstm_hidden_dim=14, gcn_pred_per_node=1)
     model.float()
     print('Model created.\n')
     print('Creating dataset...')

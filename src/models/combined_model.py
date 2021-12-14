@@ -48,9 +48,27 @@ class AdditiveGraphLSTM(BaseModel):
 
 
 class SequentialGraphLSTM(BaseModel):
-    def __init__(self) -> None:
+    def __init__(self, n_features, lstm_hidden_dim, lstm_n_layers, gcn_pred_per_node) -> None:
         super().__init__()
-        pass
+        self.n_features = n_features
+        self.lstm_input_dim = 14 * n_features
+        self.lstm_hidden_dim = lstm_hidden_dim
+        self.lstm_n_layers = lstm_n_layers
+
+        self.lstm = LSTM(input_size=14*n_features, hidden_size=lstm_hidden_dim, num_layers=lstm_n_layers, batch_first=True)
+        self.gcn = GCN(lstm_hidden_dim, gcn_pred_per_node)
+
+    def initialize_hidden_state(self, batch_size):
+        self.batch_size = batch_size
+        self.lstm_hidden_state = (torch.zeros(self.lstm_n_layers, batch_size, 14), torch.zeros(self.lstm_n_layers, batch_size, 14))
 
     def forward(self, x, adj=None):
-        pass
+        x = x.view(self.batch_size, 10, 14, -1).permute(2, 0, 1, 3) # reshape so that each node's (asset's) features is own row, have assets first
+        seq_embeddings = []
+        for features in x:
+            self.initialize_hidden_state(self.batch_size)
+            lstm_output, hidden_state = self.lstm(features, self.lstm_hidden_state)
+            self.hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())
+        
+
+        

@@ -30,8 +30,6 @@ The dataset used for this project is the G-Research Crypto Dataset which contain
 
 In total, about 3\% of the Target values and a near zero number of VWAP values are missing. These missing values are largely the result of insufficient data on assets earlier in the time window from which the data was collected while the last 15 values are all missing (most likely to prevent information leaking). These missing values do not affect our study due to us not utilizing earlier data where the majority of missing values are. The last 15 are forward-filled.
 
-We build other 
-
 \subsection{Background} \label{Background}
 
 \subsubsection{LSTM} \label{LSTM}
@@ -88,7 +86,7 @@ where Aggregate is some aggregation function, $\pmb{W}^{l}$ is a learned weights
 
 The level of message passing is largely determined by the number of GNN layers, with more layers allowing for greater aggregation) and the aggregation function used in pooling the embeddings (with more complicated aggregation schemes allowing for greater information flow).
 
-Graph convolutional networks (GCN) add an additional layer of complexity as it takes in a node feature vector and an adjacency matrix at every step to provide improved context for the message-passing steps. Given the adjacency matrix $A \in \R^{n \times n}$, we add self-connections to get $\tilde{A} = A + I_n$ where $I_n$ is the $n \times n$ identity matrix. We can then construct the diagonal degree matrix $\tilde{D}$ where $\tilde{D}_{ii} = \sum_i\tilde{A}$. Then the propagation rule introduced in \cite{Kipf2017} is
+GCNs add an additional layer of complexity as it takes in a node feature vector and an adjacency matrix at every step to provide improved context for the message-passing steps. Given the adjacency matrix $A \in \R^{n \times n}$, we add self-connections to get $\tilde{A} = A + I_n$ where $I_n$ is the $n \times n$ identity matrix. We can then construct the diagonal degree matrix $\tilde{D}$ where $\tilde{D}_{ii} = \sum_i\tilde{A}$. Then the propagation rule introduced in \cite{Kipf2017} is
 
 \begin{equation}
 f(H^{(l)}, A) = \sigma(\tilde{D}^{-\frac{1}{2}}\tilde{A}\tilde{D}^{-\frac{1}{2}}H^{(l)}W^{(l)})
