@@ -8,7 +8,7 @@ from .components import *
 class AdditiveGraphLSTM(BaseModel):
     def __init__(self, n_features, lstm_hidden_dim=14, lstm_n_layers=1, gcn_pred_per_node=1, gcn_n_layers=1, gcn_hidden_dim=1) -> None:
         """
-        Combines LSTM and GCN models into single e2e trainable model 
+        Combines LSTM and GCN models into single e2e trainable model where each model predicts separately then averaged as final output
 
         Args:
             n_features: int, number of features per node (asset)
@@ -51,6 +51,17 @@ class AdditiveGraphLSTM(BaseModel):
 
 class SequentialGraphLSTM(BaseModel):
     def __init__(self, n_features, lstm_hidden_dim=14, lstm_n_layers=1, gcn_pred_per_node=1) -> None:
+        """
+        Combines LSTM and GCN models into single e2e trainable model where LSTM provides embedding for GCN and final FC layer does predictions
+
+        Args:
+            n_features: int, number of features per node (asset)
+            lstm_hidden_dim: int, dimensionality of LSTM hidden layer(s)
+            lstm_n_layers: int, number of layers in LSTM model
+            gcn_pred_per_node: int, number of outputs each node fed into gcn is mapped to i.e. with n nodes output is size n * gcn_pred_per_node
+            gcn_n_layers: int, (not supported) number of layers in GCN model
+            gcn_hidden_dim: int, (not supported) number of outputs in hidden dim each node in input is mapped to i.e. with n nodes, hidden layer has dimension n * gcn_hidden_dim
+        """
         super().__init__()
         self.n_features = n_features
         self.lstm_input_dim = 14 * n_features
