@@ -4,35 +4,9 @@ The problem of predicting future returns given historical data for tradable asse
 with many approaches having been explored. Traditional methods used time-series models such as ARIMA and GARCH to predict future price movements. Similarly, deep-learning models that can take advantage of temporal relations such as Long Short-Term Memory (LSTM) models have been applied to this problem with promising results. 
 However, these methods fail to take into account the propagation of information through the market and the correlations of assets. In this aspect, Graph Convolutional Networks (GCN) has demonstrated good performance in regression problems. Combining these should allow for the capture and use of both intra-asset temporal and cross-asset relations to provide superior prediction performance.
 
-\subsection{Related Works} \label{Related Works}
-
-The application of deep learning in asset price predictions is a popular area of ongoing research with most works utilizing variations of Recurrent Neural Network (RNN) models which can learn temporal relationships.
-
-The authors of \cite{Shen2020} develop a custom deep learning pipeline from feature extraction to final prediction. They apply typical transformations such as scaling and calculating technical indicators on price data before combining with company financial data as features that are filtered through recursive feature elimination and PCA before being fed into an LSTM final prediction model. Their work focuses on select single-name stocks from the Chinese stock market and achieves 87\% accuracy on directional predictions on their dataset.
-
-Other works focus on specific parts of the prediction pipeline rather than developing it end-to-end. \cite{Li2018} expand on the vanilla LSTM model to allow for multiple inputs at each step for prediction. The proposed multi-input LSTM model combines low-correlated factors through additional "input gates" (for more detailed description of LSTM model see section \ref{LSTM}). The authors test their architecture on stocks in the CSI-300 index and achieve a 10\% improvement on MSE compared to other state-of-the-art LSTM architectures. Their work shows that additional contextual information can be used to improve performance of stock prediction models.
-
-\cite{Selvin2017} looked to compare the LSTM model with other temporal models such as other RNN architectures as well as sliding window Convolutional Neural Network (CNN) models. The authors tested each of the three models on select single-name stocks (Infosys, TCS, Cipla) and measured their error percentage. They show that deep learning models are able to effectively capture stock price dynamics and that temporal information is highly useful in making future predictions.
-
-The combination of LSTM models and graphical models has been a growing topic of interest as more researchers look to combine the performance of LSTM models in sequential data prediction tasks and the ability of graph models to capture cross-asset dependenceis.
-
-% To do: small write ups on \cite{Matsunaga2019}, \cite{Feng2019}, \cite{Sun2020}, \cite{Hou2021}, and \cite{Peng2021} that combine LSTM and graph models.
-
-\cite{Matsunaga2019} explored the use of temporally-enabled graph models on the stock price prediction problem. In their work, temporal information is added using an LSTM model on raw inputs as an embedding layer that produces inputs for the GCN model. This combination has been named Temporal Graph Convolution (TGC) and aims to produce both sequential and relational embeddings. This embedding and an adjacency matrix calculated using contextual company relationship data are fed into a GCN that outputs some future price prediction. They test their model on the Nikkei 225 and show that it outperforms both the market and, more importantly, the baseline LSTM model by 29.5\% and 6.3\%, respectively.
-
-Similarly, \cite{Feng2019}, makes use of TGC on the related stock ranking problem. That is, rather than predict the raw returns/prices of stocks at some future time horizon, the authors use the TGC model to predict the relative future performance of a set of assets. They test the model on NYSE and NASDAQ stock data and shows it outperforms vanilla GCN and other state-of-the-art ranking algorithms. Their study shows that the superior performance of TGC comes from combining the relational and temporal information and not from either single embedding scheme. Further, their study suggests that TGC's use is not limited to any specific market or regression problem but is trainable on any given set of assets.
-
-\cite{Hou2021} and \cite{Peng2021} further expand on the literature of TGC by testing different methods of constructing the adjacency matrix input. \cite{Hou2021} used a Variational AutoEncoder (VAE) model to cluster stocks into a graph structure and produce some adjacency matrix based on company fundamentals. They tested their adjacency matrix construction method using minute-level data from S\&P100. The authors show superior performance compared to adjacency matrices constructed using raw company fundamentals and using company industry encodings. \cite{Peng2021} also uses industry encodings as an adjacency matrix option but compares it to price-data derived alternatives such as correlation matrix and Dynamic Time Warping (DTW) induced distances. \citeauthor{Peng2021} demonstrated highest performance when using correlation matrix based on 10-day lookback window as the adjacency matrix.
-
-\subsection{Dataset} \label{Dataset}
-
-The dataset used for this project is the G-Research Crypto Dataset which contains minute-level price data for 14 commonly traded crypto assets. For each minute, the open, high, low, and close prices for the past minute are provided as well as the total volume, number of trades, and the volume weighted average price (VWAP). The target variable is the 15 minute return of the given asset. Due to computational constraints, we utilize the latest 100k timestamps available for our study.
-
-In total, about 3\% of the Target values and a near zero number of VWAP values are missing. These missing values are largely the result of insufficient data on assets earlier in the time window from which the data was collected while the last 15 values are all missing (most likely to prevent information leaking). These missing values do not affect our study due to us not utilizing earlier data where the majority of missing values are. The last 15 are forward-filled.
-
 \subsection{Background} \label{Background}
 
-\subsubsection{LSTM} \label{LSTM}
+\subsubsection{Long Short-Term Memory (LSTM)} \label{LSTM}
 
 % can cite same papers as Feng2019 if desired
 
@@ -74,7 +48,7 @@ GNN's main improvement over standard deep learning methods is the focus on learn
 s_{\mathcal{G}}(v_i, v_j) \approx \text{Decode}(\text{Encode}(v_i), \text{Encode}(v_j))
 \end{equation}
 
-For example, setting $s_{\mathcal{G}}(v_i, v_j) = A_{i,j}$ would give the problem of predicting the connections in the graph.
+For example, setting $s_{\mathcal{G}}(v_i, v_j) = \mVector{A}_{i,j}$ would give the problem of predicting the connections in the graph.
 
 Graph connectivity is utilized in pooling the outputs of these separate models between layers. For node prediction tasks this would entail pooling edge information at the connected node whereas for edge prediction tasks the information is pooled from nodes that the edge connects. This pooling between neighboring components also performs an implicit message passing whereby component embeddings affect the updates of those they are connected to. Let $\mVector{x}_i^{l}$ be the encoding after the $l$-th message passing layer, then the update to the embedding is given by
 
@@ -86,11 +60,38 @@ where Aggregate is some aggregation function, $\mVector{W}^{l}$ is a learned wei
 
 The level of message passing is largely determined by the number of GNN layers, with more layers allowing for greater aggregation) and the aggregation function used in pooling the embeddings (with more complicated aggregation schemes allowing for greater information flow).
 
-GCNs add an additional layer of complexity as it takes in a node feature vector and an adjacency matrix at every step to provide improved context for the message-passing steps. Given the adjacency matrix $A \in \R^{n \times n}$, we add self-connections to get $\mVector{\tilde{A}} = \mVector{A} + \mVector{I}_n$ where $I_n$ is the $n \times n$ identity matrix. We can then construct the diagonal degree matrix $\mVector{\tilde{D}}$ where $\mVector{\tilde{D}}_{ii} = \sum_i\mVector{\tilde{A}}$. Then the propagation rule introduced in \cite{Kipf2017} is
+Graph Convolutional Networks (GCN) add an additional layer of complexity as it takes in a node feature vector and an adjacency matrix at every step to provide improved context for the message-passing steps. Given the adjacency matrix $A \in \R^{n \times n}$, we add self-connections to get $\mVector{\tilde{A}} = \mVector{A} + \mVector{I}_n$ where $I_n$ is the $n \times n$ identity matrix. We can then construct the diagonal degree matrix $\mVector{\tilde{D}}$ where $\mVector{\tilde{D}}_{ii} = \sum_i\mVector{\tilde{A}}$. Then the propagation rule introduced in \cite{Kipf2017} is
 
 \begin{equation}
 f(\mVector{H}^{(l)}, \mVector{A}) = \sigma(\mVector{\tilde{D}}^{-\frac{1}{2}}\mVector{\tilde{A}}\mVector{\tilde{D}}^{-\frac{1}{2}}\mVector{H}^{(l)}\mVector{W}^{(l)})
 \end{equation}
 
-where $H^{(l)}$ is the activations of layer $l$ and $H^{(0)} = X$ i.e. the node feature vector and $W^{(l)}$ is a learnable weights matrix.
+where $\mVector{H}^{(l)}$ is the activations of layer $l$ and $\mVector{H}^{(0)} = \mVector{X}$ i.e. the node feature vector and $\mVector{W}^{(l)}$ is a learnable weights matrix.
+
+\subsection{Related Works} \label{Related Works}
+
+The application of deep learning in asset price predictions is a popular area of ongoing research with most works utilizing variations of RNN models which can learn temporal relationships.
+
+The authors of \cite{Shen2020} develop a custom deep learning pipeline from feature extraction to final prediction. They apply typical transformations such as scaling and calculating technical indicators on price data before combining with company financial data as features that are filtered through recursive feature elimination and PCA before being fed into an LSTM final prediction model. Their work focuses on select single-name stocks from the Chinese stock market and achieves 87\% accuracy on directional predictions on their dataset.
+
+Other works focus on specific parts of the prediction pipeline rather than developing it end-to-end. \cite{Li2018} expand on the vanilla LSTM model to allow for multiple inputs at each step for prediction. The proposed multi-input LSTM model combines low-correlated factors through additional "input gates" (for more detailed description of LSTM model see section \ref{LSTM}). The authors test their architecture on stocks in the CSI-300 index and achieve a 10\% improvement on MSE compared to other state-of-the-art LSTM architectures. Their work shows that additional contextual information can be used to improve performance of stock prediction models.
+
+\cite{Selvin2017} looked to compare the LSTM model with other temporal models such as other RNN architectures as well as sliding window Convolutional Neural Network (CNN) models. The authors tested each of the three models on select single-name stocks (Infosys, TCS, Cipla) and measured their error percentage. They show that deep learning models are able to effectively capture stock price dynamics and that temporal information is highly useful in making future predictions.
+
+The combination of LSTM models and graphical models has been a growing topic of interest as more researchers look to combine the performance of LSTM models in sequential data prediction tasks and the ability of graph models to capture cross-asset dependenceis.
+
+% To do: small write ups on \cite{Matsunaga2019}, \cite{Feng2019}, \cite{Sun2020}, \cite{Hou2021}, and \cite{Peng2021} that combine LSTM and graph models.
+
+\cite{Matsunaga2019} explored the use of temporally-enabled graph models on the stock price prediction problem. In their work, temporal information is added using an LSTM model on raw inputs as an embedding layer that produces inputs for the GCN model. This combination has been named Temporal Graph Convolution (TGC) and aims to produce both sequential and relational embeddings. This embedding and an adjacency matrix calculated using contextual company relationship data are fed into a GCN that outputs some future price prediction. They test their model on the Nikkei 225 and show that it outperforms both the market and, more importantly, the baseline LSTM model by 29.5\% and 6.3\%, respectively.
+
+Similarly, \cite{Feng2019}, makes use of TGC on the related stock ranking problem. That is, rather than predict the raw returns/prices of stocks at some future time horizon, the authors use the TGC model to predict the relative future performance of a set of assets. They test the model on NYSE and NASDAQ stock data and shows it outperforms vanilla GCN and other state-of-the-art ranking algorithms. Their study shows that the superior performance of TGC comes from combining the relational and temporal information and not from either single embedding scheme. Further, their study suggests that TGC's use is not limited to any specific market or regression problem but is trainable on any given set of assets.
+
+\cite{Hou2021} and \cite{Peng2021} further expand on the literature of TGC by testing different methods of constructing the adjacency matrix input. \cite{Hou2021} used a Variational AutoEncoder (VAE) model to cluster stocks into a graph structure and produce some adjacency matrix based on company fundamentals. They tested their adjacency matrix construction method using minute-level data from S\&P100. The authors show superior performance compared to adjacency matrices constructed using raw company fundamentals and using company industry encodings. \cite{Peng2021} also uses industry encodings as an adjacency matrix option but compares it to price-data derived alternatives such as correlation matrix and Dynamic Time Warping (DTW) induced distances. \citeauthor{Peng2021} demonstrated highest performance when using correlation matrix based on 10-day lookback window as the adjacency matrix.
+
+\subsection{Dataset} \label{Dataset}
+
+The dataset used for this project is the G-Research Crypto Dataset which contains minute-level price data for 14 commonly traded crypto assets. For each minute, the open, high, low, and close prices for the past minute are provided as well as the total volume, number of trades, and the volume weighted average price (VWAP). The target variable is the 15 minute return of the given asset. Due to computational constraints, we utilize the latest 100k timestamps available for our study.
+
+In total, about 3\% of the Target values and a near zero number of VWAP values are missing. These missing values are largely the result of insufficient data on assets earlier in the time window from which the data was collected while the last 15 values are all missing (most likely to prevent information leaking). These missing values do not affect our study due to us not utilizing earlier data where the majority of missing values are. The last 15 are forward-filled.
+
 
