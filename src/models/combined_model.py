@@ -5,7 +5,7 @@ import torch.nn as nn
 from .components import *
 
 
-class GraphLSTM(BaseModel):
+class AdditiveGraphLSTM(BaseModel):
     def __init__(self, n_features, lstm_hidden_dim=14, lstm_n_layers=1, gcn_pred_per_node=1, gcn_n_layers=1, gcn_hidden_dim=1) -> None:
         """
         Combines LSTM and GCN models into single e2e trainable model 
@@ -45,3 +45,12 @@ class GraphLSTM(BaseModel):
         final_output = self.model_weights[0]*lstm_output + self.model_weights[1]*gcn_output
 
         return final_output
+
+
+class SequentialGraphLSTM(BaseModel):
+    def __init__(self) -> None:
+        super().__init__()
+        pass
+
+    def forward(self, x, adj=None):
+        pass

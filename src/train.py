@@ -17,7 +17,7 @@ from models.components import GCN, LSTM
 from models.combined_model import GraphLSTM
 
 
-def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={}, return_all=False, mode='combined'):
+def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={}, return_all=False, mode='additive'):
     """
     Function that trains a given model on a given dataset using user-defined optimizer/criterion
 
@@ -29,7 +29,7 @@ def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={
         epochs: int, number of epochs to train for
         dl_kws: dict, any arguments to pass to DataLoader object
         return_all: bool, for debugging purposes - if True will return all objects to help observe states
-        mode: str, whether training is on lstm, gcn, or a combined model
+        mode: str, whether training is on lstm, gcn, or a combined model (additive or sequential)
     """
     dataloader = DataLoader(dataset, batch_size=batch_size, **dl_kws)
     steps_per_epoch = len(dataloader)
@@ -92,8 +92,10 @@ def main(mode, technicals):
         model = LSTM(input_size=98+14*len(technicals), hidden_size=14, batch_first=True)
     elif mode == 'gcn':
         model = GCN(n_features=7+len(technicals), n_pred_per_node=1)
+    elif mode == 'additive':
+        model = AdditiveGraphLSTM(n_features=7+len(technicals), lstm_hidden_dim=14, gcn_pred_per_node=1)
     else:
-        model = GraphLSTM(n_features=7+len(technicals), lstm_hidden_dim=14, gcn_pred_per_node=1)
+        model = SequentialGraphLSTM()
     model.float()
     print('Model created.\n')
     print('Creating dataset...')
@@ -117,7 +119,7 @@ def main(mode, technicals):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--training_mode', dest='mode', required=True, choices=['lstm', 'gcn', 'combined'], 
+    parser.add_argument('--training_mode', dest='mode', required=True, choices=['lstm', 'gcn', 'additive', 'sequential'], 
                         help='Which model is going to be trained')
     parser.add_argument('--technicals_config', dest='technicals_config', required=True, 
                         help='json file with mapping of names of features to functions that create feature')  
