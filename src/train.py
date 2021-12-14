@@ -14,7 +14,7 @@ from torch.utils.data import DataLoader
 from preprocessing.data import get_crypto_dataset
 from preprocessing.utils import *
 from models.components import GCN, LSTM
-from models.combined_model import GraphLSTM
+from models.combined_model import AdditiveGraphLSTM, SequentialGraphLSTM
 
 
 def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={}, return_all=False, mode='additive'):
