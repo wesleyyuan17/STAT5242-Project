@@ -17,6 +17,9 @@ from models.components import GCN, LSTM
 from models.combined_model import AdditiveGraphLSTM, SequentialGraphLSTM
 
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') # where to perform training
+
+
 def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={}, return_all=False, mode='additive'):
     """
     Function that trains a given model on a given dataset using user-defined optimizer/criterion
@@ -33,7 +36,8 @@ def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={
     """
     dataloader = DataLoader(dataset, batch_size=batch_size, **dl_kws)
     steps_per_epoch = len(dataloader)
-
+    model.to(device) # send model to desired training device
+    
     model.train()
     epoch_losses = []
     for e in range(epochs):
@@ -48,8 +52,8 @@ def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={
         # add tqdm for progress tracking if desired
         epoch_avg_loss = 0
         for features, target, adj in tqdm(dataloader):
-            # any casting to correct datatypes here
-            features, target, adj = features.float(), target.float(), adj.float()
+            # any casting to correct datatypes here, send to device 
+            features, target, adj = features.float().to(device), target.float().to(device), adj.float().to(device)
 
             if mode == 'lstm':
                 # lstm only takes in sequence of features

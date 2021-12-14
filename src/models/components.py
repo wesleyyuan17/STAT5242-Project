@@ -15,8 +15,14 @@ class BaseModel(nn.Module):
     def save(self, path):
         torch.save(self.state_dict(), path)
 
-    def load(self, path):
-        self.load_state_dict(torch.load(path))
+    def load(self, path, map_location=None):
+        if map_location is not None:
+            if map_location == 'cpu':
+                self.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
+            else:
+                self.load_state_dict(torch.load(path, map_location=map_location))
+        else:
+            self.load_state_dict(torch.load(path))
 
 
 class LSTM(BaseModel):
