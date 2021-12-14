@@ -26,10 +26,12 @@ class AdditiveGraphLSTM(BaseModel):
 
         self.lstm = LSTM(input_size=14*n_features, hidden_size=lstm_hidden_dim, num_layers=lstm_n_layers, batch_first=True)
         self.gcn = GCN(n_features, gcn_pred_per_node)
+        self.fc = nn.Linear(14*gcn_pred_per_node, 14)
 
         self.model_weights = nn.Parameter(torch.ones(2))
 
     def initialize_hidden_state(self, batch_size):
+        self.batch_size = batch_size
         self.lstm_hidden_state = (torch.zeros(self.lstm_n_layers, batch_size, 14), torch.zeros(self.lstm_n_layers, batch_size, 14))
 
     def forward(self, x, adj):
@@ -38,7 +40,7 @@ class AdditiveGraphLSTM(BaseModel):
         self.lstm_hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())
 
         # feed through gcn
-        gcn_output = self.gcn(x[:, -1, :], adj) # -1 to get latest state since gcn rn takes in just one day's price data
+        gcn_output = self.fc( self.gcn(x[:, -1, :], adj).view(self.batch_size, -1) ) # get latest state since gcn rn takes in just one day's price data, flatten output
 
         # combine using learnable weights
         self.model_weights = nn.Parameter(self.model_weights / self.model_weights.sum()) # normalize to sum to 1, wrap to be parameter
@@ -48,15 +50,16 @@ class AdditiveGraphLSTM(BaseModel):
 
 
 class SequentialGraphLSTM(BaseModel):
-    def __init__(self, n_features, lstm_hidden_dim, lstm_n_layers, gcn_pred_per_node) -> None:
+    def __init__(self, n_features, lstm_hidden_dim=14, lstm_n_layers=1, gcn_pred_per_node=1) -> None:
         super().__init__()
         self.n_features = n_features
         self.lstm_input_dim = 14 * n_features
         self.lstm_hidden_dim = lstm_hidden_dim
         self.lstm_n_layers = lstm_n_layers
 
-        self.lstm = LSTM(input_size=14*n_features, hidden_size=lstm_hidden_dim, num_layers=lstm_n_layers, batch_first=True)
+        self.lstm = LSTM(input_size=n_features, hidden_size=lstm_hidden_dim, num_layers=lstm_n_layers, batch_first=True)
         self.gcn = GCN(lstm_hidden_dim, gcn_pred_per_node)
+        self.fc = nn.Linear(14*gcn_pred_per_node, 14)
 
     def initialize_hidden_state(self, batch_size):
         self.batch_size = batch_size
@@ -69,6 +72,12 @@ class SequentialGraphLSTM(BaseModel):
             self.initialize_hidden_state(self.batch_size)
             lstm_output, hidden_state = self.lstm(features, self.lstm_hidden_state)
             self.hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())
-        
+            seq_embeddings.append(lstm_output) # lstm wrapper only returns last output
+        gcn_input = torch.cat(seq_embeddings) # should be 14xlstm_hidden_dim here
+        gcn_output = self.gcn(gcn_input, adj)
+        final_output = self.fc(gcn_output.view(self.batch_size, -1))
+        return final_output
+
+
 
         

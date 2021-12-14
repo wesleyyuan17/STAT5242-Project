@@ -91,11 +91,11 @@ def main(mode, technicals):
     if mode == 'lstm':
         model = LSTM(input_size=98+14*len(technicals), hidden_size=14, batch_first=True)
     elif mode == 'gcn':
-        model = GCN(n_features=7+len(technicals), n_pred_per_node=1)
+        model = GCN(n_features=7+len(technicals), n_pred_per_node=1) # 7 pre-existing features
     elif mode == 'additive':
-        model = AdditiveGraphLSTM(n_features=7+len(technicals), lstm_hidden_dim=14, gcn_pred_per_node=1)
+        model = AdditiveGraphLSTM(n_features=7+len(technicals), lstm_hidden_dim=14, gcn_pred_per_node=3) # 7 pre-existing features
     else:
-        model = SequentialGraphLSTM(n_features=7+len(technicals), lstm_hidden_dim=14, gcn_pred_per_node=1)
+        model = SequentialGraphLSTM(n_features=7+len(technicals), lstm_hidden_dim=14, gcn_pred_per_node=3) # 7 pre-existing features
     model.float()
     print('Model created.\n')
     print('Creating dataset...')

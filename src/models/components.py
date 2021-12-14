@@ -41,7 +41,7 @@ class LSTM(BaseModel):
             self.hidden_state = hidden_state
         output, hidden_state = self.lstm(x, self.hidden_state)
         self.hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())
-        return output[-1], self.hidden_state # just output of last in sequence
+        return output[:, -1, :], self.hidden_state # just output of last in sequence
 
 
 class GraphConv(nn.Module):
@@ -107,4 +107,4 @@ class GCN(BaseModel):
 
     def forward(self, x, adj=None):
         x = x.view(1, 14, -1) # reshape so that each node's (asset's) features is own row
-        return self.gc1(x, adj).view(-1, 14) # hacky way of getting the right output shape (n, 14, 1) -> (n, 14)
+        return self.gc1(x, adj)
