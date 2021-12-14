@@ -37,7 +37,7 @@ def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={
     dataloader = DataLoader(dataset, batch_size=batch_size, **dl_kws)
     steps_per_epoch = len(dataloader)
     model.to(device) # send model to desired training device
-    
+
     model.train()
     epoch_losses = []
     for e in range(epochs):
@@ -90,7 +90,7 @@ def plot_loss(losses):
     fig.savefig('figures/loss.png') # can be a variable command line arg or something
 
 
-def main(mode, technicals):
+def main(mode, technicals, epochs):
     print('Creating model...')
     if mode == 'lstm':
         model = LSTM(input_size=98+14*len(technicals), hidden_size=14, batch_first=True)
@@ -113,7 +113,7 @@ def main(mode, technicals):
     criterion = nn.MSELoss() # regression problem, could just be MSE?
 
     print('Starting training...')
-    model, losses = train(model, dataset, optimizer, criterion, epochs=1, mode=mode) # change up number of epochs depending on loss plot
+    model, losses = train(model, dataset, optimizer, criterion, epochs=epochs, mode=mode) # change up number of epochs depending on loss plot
     print('Model trained. Saving model...')
     model.save('model checkpoints/trained_model.pth') # replace this probably with command line arg or something, hard coded to fill out skeleton
     print('Model saved.')
@@ -123,10 +123,13 @@ def main(mode, technicals):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--training_mode', dest='mode', required=True, choices=['lstm', 'gcn', 'additive', 'sequential'], 
+    parser.add_argument('--training_mode', dest='mode', required=True, 
+                        choices=['lstm', 'gcn', 'additive', 'sequential'], 
                         help='Which model is going to be trained')
     parser.add_argument('--technicals_config', dest='technicals_config', required=True, 
-                        help='json file with mapping of names of features to functions that create feature')  
+                        help='json file with mapping of names of features to functions that create feature')
+    parser.add_argument('--epochs', dest='epochs', required=True,
+                        help='Number of epochs to train model for')
     args = parser.parse_args()
 
     with open(args.technicals_config, 'r') as file:
@@ -135,4 +138,4 @@ if __name__ == '__main__':
     for k, v in config.items():
         config[k] = eval(v)
 
-    main(args.mode, config)
+    main(args.mode, config, int(args.epochs))
