@@ -41,26 +41,26 @@ LSTM models are a special kind of Recurrent Neural Network (RNN) model which fea
 A standard LSTM model will have the following components
 
 \begin{enumerate}
-	\item Some input at every time step $x_t \in \R^{D_f}$ where $D_f$ is the embedding dimension of the features
-	\item A memory state $c_t \in \R^{D_h}$ and a hidden state $h_t \in \R^{D_h}$ where $D_h$ is the number of units in the hidden dimension (typically user-defined)
-	\item Input cell $i_t \in \R^{D_h}$ that controls what relevant information from previous states and new input is passed forward
-	\item Some intermediate states $z_t, c_t \in \R^{D_h}$
-	\item Output cell $o_t \in \R^{D_h}$ that controls what relevant information from intermediate steps makes it to the next time step
-	\item Forget cell $f_t \in \R^{D_h}$ that controls what information is discarded going forward
+	\item Some input at every time step $\mVector{x}_t \in \R^{D_f}$ where $D_f$ is the embedding dimension of the features
+	\item A memory state $\mVector{c}_t \in \R^{D_h}$ and a hidden state $\mVector{h}_t \in \R^{D_h}$ where $D_h$ is the number of units in the hidden dimension (typically user-defined)
+	\item Input cell $\mVector{i}_t \in \R^{D_h}$ that controls what relevant information from previous states and new input is passed forward
+	\item Some intermediate states $\mVector{z}_t, \mVector{c}_t \in \R^{D_h}$
+	\item Output cell $\mVector{o}_t \in \R^{D_h}$ that controls what relevant information from intermediate steps makes it to the next time step
+	\item Forget cell $\mVector{f}_t \in \R^{D_h}$ that controls what information is discarded going forward
 \end{enumerate}
 
 The typical operations in a single LSTM step are as follows
 
 \begin{align*}
-f_t & = \sigma(W_fx_t + Q_fh_{t-1} + b_f) \\
-i_t & = \sigma(W_ix_t + Q_ih_{t-1} + b_i) \\
-z_t & = \tanh(W_cx_t + Q_ch_{t-1} + b_c) \\
-c_t & = f_t * C_{t-1} + i_t * z_t \\
-o_t & = \sigma(W_ox_t + Q_oh_{t-1} + b_o) \\
-h_t & = o_t * \tanh(c_t)
+\mVector{f}_t & = \sigma(\mVector{W}_f\mVector{x}_t + \mVector{Q}_f\mVector{h}_{t-1} + \mVector{b}_f) \\
+\mVector{i}_t & = \sigma(\mVector{W}_i\mVector{x}_t + \mVector{Q}_i\mVector{h}_{t-1} + \mVector{b}_i) \\
+\mVector{z}_t & = \tanh(\mVector{W}_c\mVector{x}_t + \mVector{Q}_c\mVector{h}_{t-1} + \mVector{b}_c) \\
+\mVector{c}_t & = \mVector{f}_t * \mVector{c}_{t-1} + \mVector{i}_t * \mVector{z}_t \\
+\mVector{o}_t & = \sigma(\mVector{W}_o\mVector{x}_t + \mVector{Q}_o\mVector{h}_{t-1} + \mVector{b}_o) \\
+\mVector{h}_t & = \mVector{o}_t * \tanh(\mVector{c}_t)
 \end{align*}
 
-where $W_* \in \R^{D_h \times D_f}$, $Q_* \in \R^{D_h \times D_h}$, and $b_* \in R^{D_h}$ are learnable parameters and $\sigma$ denotes some user-specified activation function.
+where $\mVector{W}_* \in \R^{D_h \times D_f}$, $\mVector{Q}_* \in \R^{D_h \times D_h}$, and $\mVector{b}_* \in R^{D_h}$ are learnable parameters and $\sigma$ denotes some user-specified activation function.
 
 \subsubsection{Graph Neural Networks}
 
@@ -76,20 +76,20 @@ s_{\mathcal{G}}(v_i, v_j) \approx \text{Decode}(\text{Encode}(v_i), \text{Encode
 
 For example, setting $s_{\mathcal{G}}(v_i, v_j) = A_{i,j}$ would give the problem of predicting the connections in the graph.
 
-Graph connectivity is utilized in pooling the outputs of these separate models between layers. For node prediction tasks this would entail pooling edge information at the connected node whereas for edge prediction tasks the information is pooled from nodes that the edge connects. This pooling between neighboring components also performs an implicit message passing whereby component embeddings affect the updates of those they are connected to. Let $\pmb{x}_i^{l}$ be the encoding after the $l$-th message passing layer, then the update to the embedding is given by
+Graph connectivity is utilized in pooling the outputs of these separate models between layers. For node prediction tasks this would entail pooling edge information at the connected node whereas for edge prediction tasks the information is pooled from nodes that the edge connects. This pooling between neighboring components also performs an implicit message passing whereby component embeddings affect the updates of those they are connected to. Let $\mVector{x}_i^{l}$ be the encoding after the $l$-th message passing layer, then the update to the embedding is given by
 
 \begin{equation}
-\pmb{x}_i^{l+1} = \pmb{W}^{l}x_i^{l} + \text{Aggregate}(\pmb{x}_j^{l}),\ j \in Ne(v_i)
+\mVector{x}_i^{l+1} = \mVector{W}^{l}\mVector{x}_i^{l} + \text{Aggregate}(\mVector{x}_j^{l}),\ j \in Ne(v_i)
 \end{equation}
 
-where Aggregate is some aggregation function, $\pmb{W}^{l}$ is a learned weights matrix, and $Ne(v_i)$ denotes the neighbors of node $v_i$.
+where Aggregate is some aggregation function, $\mVector{W}^{l}$ is a learned weights matrix, and $Ne(v_i)$ denotes the neighbors of node $v_i$.
 
 The level of message passing is largely determined by the number of GNN layers, with more layers allowing for greater aggregation) and the aggregation function used in pooling the embeddings (with more complicated aggregation schemes allowing for greater information flow).
 
-GCNs add an additional layer of complexity as it takes in a node feature vector and an adjacency matrix at every step to provide improved context for the message-passing steps. Given the adjacency matrix $A \in \R^{n \times n}$, we add self-connections to get $\tilde{A} = A + I_n$ where $I_n$ is the $n \times n$ identity matrix. We can then construct the diagonal degree matrix $\tilde{D}$ where $\tilde{D}_{ii} = \sum_i\tilde{A}$. Then the propagation rule introduced in \cite{Kipf2017} is
+GCNs add an additional layer of complexity as it takes in a node feature vector and an adjacency matrix at every step to provide improved context for the message-passing steps. Given the adjacency matrix $A \in \R^{n \times n}$, we add self-connections to get $\mVector{\tilde{A}} = \mVector{A} + \mVector{I}_n$ where $I_n$ is the $n \times n$ identity matrix. We can then construct the diagonal degree matrix $\mVector{\tilde{D}}$ where $\mVector{\tilde{D}}_{ii} = \sum_i\mVector{\tilde{A}}$. Then the propagation rule introduced in \cite{Kipf2017} is
 
 \begin{equation}
-f(H^{(l)}, A) = \sigma(\tilde{D}^{-\frac{1}{2}}\tilde{A}\tilde{D}^{-\frac{1}{2}}H^{(l)}W^{(l)})
+f(\mVector{H}^{(l)}, \mVector{A}) = \sigma(\mVector{\tilde{D}}^{-\frac{1}{2}}\mVector{\tilde{A}}\mVector{\tilde{D}}^{-\frac{1}{2}}\mVector{H}^{(l)}\mVector{W}^{(l)})
 \end{equation}
 
 where $H^{(l)}$ is the activations of layer $l$ and $H^{(0)} = X$ i.e. the node feature vector and $W^{(l)}$ is a learnable weights matrix.
