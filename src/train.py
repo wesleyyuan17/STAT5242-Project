@@ -90,7 +90,7 @@ def plot_loss(losses):
     fig.savefig('figures/loss.png') # can be a variable command line arg or something
 
 
-def main(mode, technicals, epochs):
+def main(mode, technicals, epochs, model_name):
     print('Creating model...')
     if mode == 'lstm':
         model = LSTM(input_size=98+14*len(technicals), hidden_size=14, batch_first=True)
@@ -115,7 +115,7 @@ def main(mode, technicals, epochs):
     print('Starting training...')
     model, losses = train(model, dataset, optimizer, criterion, epochs=epochs, mode=mode) # change up number of epochs depending on loss plot
     print('Model trained. Saving model...')
-    model.save('model checkpoints/trained_model.pth') # replace this probably with command line arg or something, hard coded to fill out skeleton
+    model.save('model checkpoints/{}.pth'.format(model_name)) # replace this probably with command line arg or something, hard coded to fill out skeleton
     print('Model saved.')
 
     plot_loss(losses)
@@ -130,6 +130,8 @@ if __name__ == '__main__':
                         help='json file with mapping of names of features to functions that create feature')
     parser.add_argument('--epochs', dest='epochs', required=True,
                         help='Number of epochs to train model for')
+    parser.add_argument('--model_name', dest='model_name', required=True,
+                        help='Name for saving model to local directory')
     args = parser.parse_args()
 
     with open(args.technicals_config, 'r') as file:
@@ -138,4 +140,4 @@ if __name__ == '__main__':
     for k, v in config.items():
         config[k] = eval(v)
 
-    main(args.mode, config, int(args.epochs))
+    main(args.mode, config, int(args.epochs), args.model_name)
