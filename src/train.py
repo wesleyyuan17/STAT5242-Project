@@ -81,13 +81,13 @@ def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={
         return model, epoch_losses
 
 
-def plot_loss(losses):
+def plot_loss(losses, model_name):
     fig = plt.figure(figsize=(10,5))
     plt.plot(range(len(losses)), losses)
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.show()
-    fig.savefig('figures/loss.png') # can be a variable command line arg or something
+    fig.savefig('figures/{}_training_loss.png'.format(model_name)) # can be a variable command line arg or something
 
 
 def main(mode, technicals, epochs, model_name):
@@ -118,7 +118,7 @@ def main(mode, technicals, epochs, model_name):
     model.save('model checkpoints/{}.pth'.format(model_name)) # replace this probably with command line arg or something, hard coded to fill out skeleton
     print('Model saved.')
 
-    plot_loss(losses)
+    plot_loss(losses, model_name)
 
 
 if __name__ == '__main__':
