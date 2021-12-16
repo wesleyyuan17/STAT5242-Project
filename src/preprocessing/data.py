@@ -92,7 +92,7 @@ class CryptoFeed(IterableDataset):
             yield features, target, adj
 
 
-def get_crypto_dataset(seq_len=5, technicals=None):
+def get_crypto_dataset(seq_len=5, technicals=None, evaluation=False):
     file_path = os.path.join(LOCAL_PATH_TO_DIR, 'data/g-research-crypto-forecasting/train.csv')
     data = pd.read_csv(file_path)
     data['timestamp'] = pd.to_datetime(data['timestamp'], unit='s')
@@ -104,5 +104,5 @@ def get_crypto_dataset(seq_len=5, technicals=None):
     data.fillna(method='ffill', inplace=True)
     data.fillna(value=0, inplace=True)
 
-    dataset = CryptoFeed(data, seq_len, technicals)
+    dataset = CryptoFeed(data, seq_len, technicals, evaluation)
     return dataset
