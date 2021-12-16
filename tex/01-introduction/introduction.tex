@@ -88,6 +88,14 @@ Similarly, \cite{Feng2019}, makes use of TGC on the related stock ranking proble
 
 \cite{Hou2021} and \cite{Peng2021} further expand on the literature of TGC by testing different methods of constructing the adjacency matrix input. \cite{Hou2021} used a Variational AutoEncoder (VAE) model to cluster stocks into a graph structure and produce some adjacency matrix based on company fundamentals. They tested their adjacency matrix construction method using minute-level data from S\&P100. The authors show superior performance compared to adjacency matrices constructed using raw company fundamentals and using company industry encodings. \cite{Peng2021} also uses industry encodings as an adjacency matrix option but compares it to price-data derived alternatives such as correlation matrix and Dynamic Time Warping (DTW) induced distances. \citeauthor{Peng2021} demonstrated highest performance when using correlation matrix based on 10-day lookback window as the adjacency matrix.
 
+\subsection{Usage of technical indicators}
+
+To create the feature vectors of the GCN for training, we make use of several technical indicators. The purpose of these technical indicators is to provide a better baseline of previous information in order to predict the current price with a smaller model.
+
+The authors in \cite{Cocco2021} study the performance of several technical indicators to predict the daily closing price of Bitcoin. Of the five used in their paper, we choose to adopt three to use ourselves: the \textit{Simple Moving Average} (SMA), \textit{Exponential Moving Average} (EMA), and the \textit{Relative Strength Index} (RSI). In addition, we have two other indicators, \textit{Bollinger Bands} and a \textit{Stochastic Oscillator}, which has been shown by \cite{Huang2019} to be effective in predicting cryptocurrency prices. 
+
+% Another technical indicator is \textit{Dynamic Time Warping}, an algorithm that seeks to find previous patterns in the asset's price history and compare it to the current price. By looking back and finding all similar patterns to the current trend, and taking the average of what comes next, we hope to make a good prediction of the price in the immediate future. \cite{berndt1994using} has shown DTW's utility in pattern matching time series analysis, specifically for price prediction of financial assets. 
+
 \subsection{Dataset} \label{Dataset}
 
 The dataset used for this project is the G-Research Crypto Dataset which contains minute-level price data for 14 commonly traded crypto assets. For each minute, the open, high, low, and close prices for the past minute are provided as well as the total volume, number of trades, and the volume weighted average price (VWAP). The target variable is the 15 minute return of the given asset. Due to computational constraints, we utilize the latest 100k timestamps available for our study.

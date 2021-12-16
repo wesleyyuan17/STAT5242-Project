@@ -5,6 +5,7 @@ Source/links for technical indicators:
 """
 
 import numpy as np
+import pandas as pd
 
 
 def EMA(df, window):
