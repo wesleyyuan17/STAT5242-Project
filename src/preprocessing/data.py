@@ -10,18 +10,25 @@ LOCAL_PATH_TO_DIR = '~/Documents/Academics/Columbia/2021/2021 Fall/Advanced ML/F
 
 
 class CryptoFeed(IterableDataset):
-    def __init__(self, df, seq_len=5, technicals=None):
+    def __init__(self, df, seq_len=5, technicals=None, evaluation=False):
         """
         Creates an iterable feed of crypto market states increasing in time given an input df
 
         Args:
-            df: pandas Dataframe, contains price data on crypto assets. Assumes 
+            df: pandas Dataframe, contains price data on crypto assets. Assumes it has specific columns for technicals construction
+            seq_len: int, the sliding window length that makes up a sample
             technicals: dict, string (key) mapped to function (value) that calculates technical indicator from df
+            evaluation: bool, if true then take last 10k of samples as validation set, otherwise use first 90k steps as training
         """
         if os.path.exists('data/filtered_features.csv'):
-            self.features = pd.read_csv('data/filtered_features.csv').set_index('timestamp')
-            self.targets = pd.read_csv('data/filtered_targets.csv').set_index('timestamp')
-            self.log_returns = pd.read_csv('data/filtered_log_returns.csv').set_index('timestamp')
+            if evaluation:
+                self.features = pd.read_csv('data/filtered_features.csv').set_index('timestamp').iloc[:-10000]
+                self.targets = pd.read_csv('data/filtered_targets.csv').set_index('timestamp').iloc[:-10000]
+                self.log_returns = pd.read_csv('data/filtered_log_returns.csv').set_index('timestamp').iloc[:-10000]
+            else:
+                self.features = pd.read_csv('data/filtered_features.csv').set_index('timestamp').iloc[-10000:]
+                self.targets = pd.read_csv('data/filtered_targets.csv').set_index('timestamp').iloc[-10000:]
+                self.log_returns = pd.read_csv('data/filtered_log_returns.csv').set_index('timestamp').iloc[-10000:]
         else:
             # only use last 100k timesteps to save computation time
             accepted_timestamp_threshold = sorted(df['timestamp'].unique())[-100000]
@@ -54,6 +61,15 @@ class CryptoFeed(IterableDataset):
             self.features.to_csv('data/filtered_features.csv')
             self.targets.to_csv('data/filtered_targets.csv')
             self.log_returns.to_csv('data/filtered_log_returns.csv')
+
+            if evaluation:
+                self.features = self.features.iloc[-10000:]
+                self.targets = self.targets.iloc[-10000:]
+                self.log_returns = self.log_returns.iloc[-10000:]
+            else:
+                self.features = self.features.iloc[:-10000]
+                self.targets = self.targets.iloc[:-10000]
+                self.log_returns = self.log_returns.iloc[:-10000]
 
         # last cleaning for any nan's produced in feature engineering
         self.features.fillna(0, inplace=True)
