@@ -87,7 +87,7 @@ def plot_loss(losses, model_name):
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.show()
-    fig.savefig('figures/{}_training_loss.png'.format(model_name)) # can be a variable command line arg or something
+    fig.savefig('figures/{}_training_loss.pdf'.format(model_name)) # can be a variable command line arg or something
 
 
 def main(mode, technicals, epochs, model_name):

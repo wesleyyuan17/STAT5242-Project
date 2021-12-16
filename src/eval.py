@@ -9,6 +9,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 
 from preprocessing.data import get_crypto_dataset
+from preprocessing.utils import *
 from models.components import GCN, LSTM
 from models.combined_model import AdditiveGraphLSTM, SequentialGraphLSTM
 
@@ -76,7 +77,8 @@ def main(eval_model, technicals, model_name):
     losses = evaluate(model, dataset, criterion, mode=eval_model)
     with open('results/{}_loss.txt'.format(model_name), 'w') as f:
         # output losses to file for later
-        f.write('\n'.join(losses))
+        for l in losses:
+            f.write('{}\n'.format(l))
     
     print('Average MSE for {}: {:.4f}'.format(model_name, np.mean(losses)))
 
