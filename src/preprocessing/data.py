@@ -22,13 +22,15 @@ class CryptoFeed(IterableDataset):
         """
         if os.path.exists('data/filtered_features.csv'):
             if evaluation:
-                self.features = pd.read_csv('data/filtered_features.csv').set_index('timestamp').iloc[:-10000]
-                self.targets = pd.read_csv('data/filtered_targets.csv').set_index('timestamp').iloc[:-10000]
-                self.log_returns = pd.read_csv('data/filtered_log_returns.csv').set_index('timestamp').iloc[:-10000]
-            else:
+                # take last 10k for validation set
                 self.features = pd.read_csv('data/filtered_features.csv').set_index('timestamp').iloc[-10000:]
                 self.targets = pd.read_csv('data/filtered_targets.csv').set_index('timestamp').iloc[-10000:]
                 self.log_returns = pd.read_csv('data/filtered_log_returns.csv').set_index('timestamp').iloc[-10000:]
+            else:
+                # take first 90k as training set
+                self.features = pd.read_csv('data/filtered_features.csv').set_index('timestamp').iloc[:-10000]
+                self.targets = pd.read_csv('data/filtered_targets.csv').set_index('timestamp').iloc[:-10000]
+                self.log_returns = pd.read_csv('data/filtered_log_returns.csv').set_index('timestamp').iloc[:-10000]
         else:
             # only use last 100k timesteps to save computation time
             accepted_timestamp_threshold = sorted(df['timestamp'].unique())[-100000]
@@ -63,10 +65,12 @@ class CryptoFeed(IterableDataset):
             self.log_returns.to_csv('data/filtered_log_returns.csv')
 
             if evaluation:
+                # use last 10k as validation set
                 self.features = self.features.iloc[-10000:]
                 self.targets = self.targets.iloc[-10000:]
                 self.log_returns = self.log_returns.iloc[-10000:]
             else:
+                # use first 90k as training set
                 self.features = self.features.iloc[:-10000]
                 self.targets = self.targets.iloc[:-10000]
                 self.log_returns = self.log_returns.iloc[:-10000]
