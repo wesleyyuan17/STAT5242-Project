@@ -44,16 +44,15 @@ def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={
 
         print('Starting epoch {}...'.format(e))
 
-        if mode != 'gcn':
-            # need to initialize hidden state
-            # hidden_state = (torch.zeros(1, 1, 14), torch.zeros(1, 1, 14))
-            model.initialize_hidden_state(batch_size)
-
         # add tqdm for progress tracking if desired
         epoch_avg_loss = 0
         for features, target, adj in tqdm(dataloader):
             # any casting to correct datatypes here, send to device 
             features, target, adj = features.float().to(device), target.float().to(device), adj.float().to(device)
+            
+            if mode != 'gcn':
+                # need to initialize hidden state
+                model.initialize_hidden_state(batch_size)
 
             if mode == 'lstm':
                 # lstm only takes in sequence of features

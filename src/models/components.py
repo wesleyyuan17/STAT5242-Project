@@ -41,9 +41,7 @@ class LSTM(BaseModel):
         self.hidden_state = (torch.zeros(self.num_layers, batch_size, self.hidden_size), torch.zeros(self.num_layers, batch_size, self.hidden_size))
 
     def forward(self, x, hidden_state=None):
-        if hidden_state is None:
-            self.initialize_hidden_state(x.shape[0])
-        else:
+        if hidden_state is not None:
             self.hidden_state = hidden_state
         output, hidden_state = self.lstm(x, self.hidden_state)
         self.hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())

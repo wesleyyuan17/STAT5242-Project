@@ -6,7 +6,7 @@ from torch.utils.data import IterableDataset
 from .utils import *
 
 
-LOCAL_PATH_TO_DIR = '~/Documents/Academics/Columbia/2021/2021 Fall/Advanced ML/Final Project'
+LOCAL_PATH_TO_DIR = os.getcwd() # '~/Documents/Academics/Columbia/2021/2021 Fall/Advanced ML/Final Project'
 
 
 class CryptoFeed(IterableDataset):
