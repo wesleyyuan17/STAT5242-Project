@@ -33,13 +33,14 @@ def evaluate(model, dataset, criterion, batch_size=1, dl_kws={}, mode='additive'
     model.to(device) # send model to desired training device
 
     model.eval()
-    if mode != 'gcn':
-        # need to initialize hidden state
-        model.initialize_hidden_state(batch_size)
     losses = []
     for features, target, adj in tqdm(dataloader):
         # any casting to correct datatypes here, send to device 
         features, target, adj = features.float().to(device), target.float().to(device), adj.float().to(device)
+
+        if mode != 'gcn':
+            # need to initialize hidden state
+            model.initialize_hidden_state(batch_size)
 
         if mode == 'lstm':
             # lstm only takes in sequence of features
