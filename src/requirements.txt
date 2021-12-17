@@ -2,6 +2,7 @@ pandas==1.2.1
 numpy==1.21.2
 torch==1.10.0
 matplotlib==3.3.2
+seaborn==0.11.1
 tqdm==4.62.3
 argparse==1.1
 scipy==1.7.1
