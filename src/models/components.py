@@ -109,6 +109,7 @@ class GCN(BaseModel):
         Args:
             n_features: int, number of features per node (asset)
             n_pred_per_node: int, number of values to predict for each node (asset)
+            predict: bool, does this model directly predict out or is it handled later? If True, creates fully connected layer for prediction
         """
         super().__init__()
         self.gc1 = GraphConv(n_features, n_pred_per_node, 'relu')
