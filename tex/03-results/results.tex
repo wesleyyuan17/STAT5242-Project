@@ -11,15 +11,15 @@ Forthcoming
 
 \begin{table}[H]
 	\centering
-	\begin{tabular}{|c|c|}
+	\begin{tabular}{|c|c|c|c|c|}
 	\hline
-	Model & MSE \\
+	Model & Optimzier & Learning Rate & Momentum & MSE \\
 	\hline
-	LSTM & 0.0088 \\
-	Additive & \\
-	Sequential & \\
+	LSTM & SGD & 0.0001 & 0.9 & 0.0030 \\
+	Additive & & & & \\
+	Sequential & & & & \\
 	\hline
 	\end{tabular}
-	\caption{Average MSE of models on validation set}
+	\caption{Hyperparameters for best performing model with average MSE on validation set}
 	\label{tab:results_summary}
 \end{table}

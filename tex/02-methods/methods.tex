@@ -11,4 +11,10 @@ To improve upon the baseline, we introduce a GNN that we use to learn relational
 	\label{fig:asset_corr}
 \end{figure}
 
-\cite{Peng2021} show empirically that using the correlation matrix as an adjacency matrix as input into GCN layers provided best performance. Therefore, we use the same, imposing a lookback window equal to the length of the sequence input to the LSTM model. Restricting this lookback window provides a basis for direct comparison as the GCN-augmented model will not have access to more information than the LSTM model and any performance boost would be a result of capturing relational information from the correlation matrix. For our specific GCN model, we implement the propogation rule taken from \cite{Kipf2017}.
+\cite{Peng2021} show empirically that using the correlation matrix as an adjacency matrix as input into GCN layers provided best performance. Therefore, we use the same, imposing a lookback window equal to the length of the sequence input to the LSTM model. Restricting this lookback window provides a basis for direct comparison as the GCN-augmented model will not have access to more information than the LSTM model and any performance boost would be a result of capturing relational information from the correlation matrix. For our specific GCN model, we implement the propogation rule taken from \cite{Kipf2017} with slight adjustment. For our model, we omit $\tilde{\mVector{D}}^{-1/2}$ from the update rule because it is poorly defined given $\tilde{A}$ as the correlation matrix has negative degree nodes. Therefore, we have the following 
+
+\begin{equation}
+f(\mVector{H}^{(l)}, \mVector{A}) = \sigma(\mVector{\tilde{A}}\mVector{H}^{(l)}\mVector{W}^{(l)})
+\end{equation}
+
+where variables are as defined above.

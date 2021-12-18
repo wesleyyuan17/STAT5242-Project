@@ -80,7 +80,7 @@ def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={
 
             optimizer.step()
         epoch_losses.append( epoch_avg_loss / steps_per_epoch )
-        
+
         # lr_scheduler here if desired
 
         print('Epoch {} completed. Avg epoch loss: {:.4f}'.format(e, epoch_losses[-1]))
@@ -119,7 +119,7 @@ def main(mode, technicals, epochs, model_name):
     else:
         dataset = get_crypto_dataset(seq_len=10, technicals=technicals) # length 10 window was good in other papers, could tune if desired
     print('Dataset created.\n')
-    optimizer = optim.Adam(model.parameters(), lr=1e-3) # can play around with this one
+    optimizer = optim.SGD(model.parameters(), lr=1e-4, momentum=0.9) # can play around with this one
     criterion = nn.MSELoss() # regression problem so going just with MSE
 
     print('Starting training...')
