@@ -46,7 +46,6 @@ def evaluate(model, dataset, criterion, batch_size=1, dl_kws={}, mode='additive'
             # lstm only takes in sequence of features
             output, hidden_state = model(features)
             hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())
-            output = output[-1]
         else:
             # gcn and combined model both use adjacency matrix
             output = model(features, adj.squeeze())

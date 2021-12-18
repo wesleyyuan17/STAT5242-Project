@@ -80,6 +80,7 @@ def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={
 
             optimizer.step()
         epoch_losses.append( epoch_avg_loss / steps_per_epoch )
+        
         # lr_scheduler here if desired
 
         print('Epoch {} completed. Avg epoch loss: {:.4f}'.format(e, epoch_losses[-1]))
