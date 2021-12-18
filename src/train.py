@@ -46,11 +46,16 @@ def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={
 
         # add tqdm for progress tracking if desired
         epoch_avg_loss = 0
-        for features, target, adj in tqdm(dataloader):
+        pbar = tqdm(dataloader) # for produce progress bar to track training
+        n_iter = 0
+        for features, target, adj in pbar:
             # any casting to correct datatypes here, send to device 
             features, target, adj = features.float().to(device), target.float().to(device), adj.float().to(device)
             
-            if mode != 'gcn':
+            if mode == 'gcn':
+                # special processing, only using last time step
+                features = features[:, -1, :]
+            else:
                 # need to initialize hidden state
                 model.initialize_hidden_state(batch_size)
 
@@ -58,7 +63,6 @@ def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={
                 # lstm only takes in sequence of features
                 output, hidden_state = model(features)
                 hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())
-                output = output[-1]
             else:
                 # gcn and combined model both use adjacency matrix
                 output = model(features, adj.squeeze())
@@ -67,7 +71,13 @@ def train(model, dataset, optimizer, criterion, epochs=2, batch_size=1, dl_kws={
             optimizer.zero_grad()
             loss.backward()
             epoch_avg_loss += loss.item()
-            # gradient clipping here if desired
+
+            n_iter += 1
+            pbar.set_postfix({'avg loss': epoch_avg_loss / n_iter})
+
+            # gradient clipping as necessary
+            # torch.nn.utils.clip_grad_norm_(model.parameters(), 1)
+
             optimizer.step()
         epoch_losses.append( epoch_avg_loss / steps_per_epoch )
         # lr_scheduler here if desired
@@ -94,7 +104,7 @@ def main(mode, technicals, epochs, model_name):
     if mode == 'lstm':
         model = LSTM(input_size=98+14*len(technicals), hidden_size=14, batch_first=True)
     elif mode == 'gcn':
-        model = GCN(n_features=7+len(technicals), n_pred_per_node=1) # 7 pre-existing features
+        model = GCN(n_features=7+len(technicals), n_pred_per_node=3, predict=True) # 7 pre-existing features
     elif mode == 'additive':
         model = AdditiveGraphLSTM(n_features=7+len(technicals), lstm_hidden_dim=14, gcn_pred_per_node=3) # 7 pre-existing features
     else:

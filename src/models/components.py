@@ -70,8 +70,9 @@ class GraphConv(nn.Module):
             self.d_inv = np.linalg.inv( torch.sum(self.a, axis=1) )
             self.sqrt_d_inv = sqrtm(self.d_inv)
 
-        self.weight = nn.Parameter(torch.FloatTensor(in_dim, out_dim))
-        self.bias = nn.Parameter(torch.FloatTensor(out_dim))
+        # kinda shitty initializations but works for now
+        self.weight = nn.Parameter(torch.zeros(in_dim, out_dim, dtype=torch.float))
+        self.bias = nn.Parameter(torch.zeros(out_dim, dtype=torch.float))
 
         if activation == 'relu':
             self.activation = nn.ReLU()
@@ -88,17 +89,20 @@ class GraphConv(nn.Module):
             
             a.type(self.weight.dtype)
             
+            # traditionally have D^(-1/2)AD^(-1/2) but correlation matrix has negative values so D^(-1/2) becomes ill-defined
             # d_inv = np.linalg.inv( torch.diag(torch.sum(a, axis=1)) )
             # sqrt_d_inv = torch.tensor(sqrtm(d_inv), dtype=self.weight.dtype)
-            sqrt_d_inv = torch.diag( torch.sqrt(1 / torch.sum(a, axis=1)) ) # simple since inverse of diagonal matrix
-    
+            # sqrt_d_inv = torch.diag( torch.sqrt(1 / torch.sum(a, axis=1)) ) # simple since inverse of diagonal matrix
+
         x = torch.matmul(x, self.weight)
-        output = torch.matmul(torch.mm(torch.mm(sqrt_d_inv, a), sqrt_d_inv), x)
+        # adj_inter = torch.matmul(torch.matmul(sqrt_d_inv, a), sqrt_d_inv) # intermediate step in adjacency matrix calculations
+        # output = torch.matmul(torch.matmul(), x)
+        output = torch.matmul(a, x)
         return self.activation(output) + self.bias
 
 
 class GCN(BaseModel):
-    def __init__(self, n_features, n_pred_per_node) -> None:
+    def __init__(self, n_features, n_pred_per_node, predict=False) -> None:
         """
         Graph convoluation model
 
@@ -108,7 +112,13 @@ class GCN(BaseModel):
         """
         super().__init__()
         self.gc1 = GraphConv(n_features, n_pred_per_node, 'relu')
+        self.predict = predict
+        if predict:
+            self.fc = nn.Linear(14*n_pred_per_node, 14)
 
     def forward(self, x, adj=None):
         x = x.view(1, 14, -1) # reshape so that each node's (asset's) features is own row
-        return self.gc1(x, adj)
+        if self.predict:
+            return self.fc( self.gc1(x, adj).view(1, -1) )
+        else:
+            return self.gc1(x, adj)
