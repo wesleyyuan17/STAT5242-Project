@@ -54,6 +54,7 @@ def evaluate(model, dataset, criterion, batch_size=1, dl_kws={}, mode='additive'
     
     return losses
 
+
 def main(eval_model, technicals, model_name):
     print('Creating model...')
     if eval_model == 'lstm':
