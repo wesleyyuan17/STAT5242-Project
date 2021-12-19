@@ -103,7 +103,7 @@ def plot_loss(losses, model_name):
 def main(mode, technicals, epochs, model_name):
     print('Creating model...')
     if mode == 'lstm':
-        model = LSTM(input_size=98+14*len(technicals), hidden_size=14, batch_first=True)
+        model = LSTM(input_size=98+14*len(technicals), hidden_size=14, batch_first=True, predict=True)
     elif mode == 'gcn':
         model = GCN(n_features=7+len(technicals), n_pred_per_node=3, predict=True) # 7 pre-existing features
     elif mode == 'additive':

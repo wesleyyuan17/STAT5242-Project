@@ -26,7 +26,7 @@ class BaseModel(nn.Module):
 
 
 class LSTM(BaseModel):
-    def __init__(self, input_size, hidden_size, num_layers=1, batch_first=False) -> None:
+    def __init__(self, input_size, hidden_size, num_layers=1, batch_first=False, predict=False) -> None:
         """
         Wrapper for PyTorch implementation of LSTM to take advantage of save/load of BaseModel
         """
@@ -36,8 +36,12 @@ class LSTM(BaseModel):
         self.num_layers = num_layers
 
         self.lstm = nn.LSTM(input_size=input_size, hidden_size=hidden_size, num_layers=num_layers, batch_first=batch_first)
+        self.predict = predict
+        if predict:
+            self.fc = nn.Linear(10*hidden_size, 14) # hard coded to sequences of length 10
 
     def initialize_hidden_state(self, batch_size):
+        self.batch_size = batch_size
         self.hidden_state = (torch.zeros(self.num_layers, batch_size, self.hidden_size), torch.zeros(self.num_layers, batch_size, self.hidden_size))
 
     def forward(self, x, hidden_state=None):
@@ -45,7 +49,10 @@ class LSTM(BaseModel):
             self.hidden_state = hidden_state
         output, hidden_state = self.lstm(x, self.hidden_state)
         self.hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())
-        return output[:, -1, :], self.hidden_state # just output of last in sequence
+        if self.predict:
+            return self.fc( output.view(self.batch_size, -1) ), self.hidden_state
+        else:
+            return output[:, -1, :], self.hidden_state # just output of last in sequence
 
 
 class GraphConv(nn.Module):
