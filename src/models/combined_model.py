@@ -31,6 +31,7 @@ class AdditiveGraphLSTM(BaseModel):
 
     def initialize_hidden_state(self, batch_size):
         self.batch_size = batch_size
+        self.lstm.initialize_hidden_state(batch_size)
         self.lstm_hidden_state = (torch.zeros(self.lstm_n_layers, batch_size, 14), torch.zeros(self.lstm_n_layers, batch_size, 14))
 
     def forward(self, x, adj):
