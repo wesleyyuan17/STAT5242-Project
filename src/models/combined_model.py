@@ -24,9 +24,8 @@ class AdditiveGraphLSTM(BaseModel):
         self.lstm_hidden_dim = lstm_hidden_dim
         self.lstm_n_layers = lstm_n_layers
 
-        self.lstm = LSTM(input_size=14*n_features, hidden_size=lstm_hidden_dim, num_layers=lstm_n_layers, batch_first=True)
-        self.gcn = GCN(n_features, gcn_pred_per_node)
-        self.fc = nn.Linear(14*gcn_pred_per_node, 14)
+        self.lstm = LSTM(input_size=14*n_features, hidden_size=lstm_hidden_dim, num_layers=lstm_n_layers, batch_first=True, predict=True)
+        self.gcn = GCN(n_features, gcn_pred_per_node, predict=True)
 
         self.model_weights = nn.Parameter(torch.ones(2))
 
@@ -40,7 +39,7 @@ class AdditiveGraphLSTM(BaseModel):
         self.lstm_hidden_state = (hidden_state[0].detach(), hidden_state[1].detach())
 
         # feed through gcn
-        gcn_output = self.fc( self.gcn(x[:, -1, :], adj).view(self.batch_size, -1) ) # get latest state since gcn rn takes in just one day's price data, flatten before fc
+        gcn_output = self.gcn(x[:, -1, :], adj).view(self.batch_size, -1) # get latest state since gcn rn takes in just one day's price data, flatten before fc
 
         # combine using learnable weights
         self.model_weights = nn.Parameter(self.model_weights / self.model_weights.sum()) # normalize to sum to 1, wrap to be parameter
