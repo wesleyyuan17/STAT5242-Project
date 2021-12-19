@@ -58,9 +58,9 @@ def evaluate(model, dataset, criterion, batch_size=1, dl_kws={}, mode='additive'
 def main(eval_model, technicals, model_name):
     print('Creating model...')
     if eval_model == 'lstm':
-        model = LSTM(input_size=98+14*len(technicals), hidden_size=14, batch_first=True)
+        model = LSTM(input_size=98+14*len(technicals), hidden_size=14, batch_first=True, predict=True)
     elif eval_model == 'gcn':
-        model = GCN(n_features=7+len(technicals), n_pred_per_node=1) # 7 pre-existing features
+        model = GCN(n_features=7+len(technicals), n_pred_per_node=1, predict=True) # 7 pre-existing features
     elif eval_model == 'additive':
         model = AdditiveGraphLSTM(n_features=7+len(technicals), lstm_hidden_dim=14, gcn_pred_per_node=3) # 7 pre-existing features
     else:
