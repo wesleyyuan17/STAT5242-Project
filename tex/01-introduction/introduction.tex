@@ -10,7 +10,7 @@ However, these methods fail to take into account the propagation of information 
 
 % can cite same papers as Feng2019 if desired
 
-LSTM models are a special kind of Recurrent Neural Network (RNN) model which feature evolving hidden states that capture time-dependencies in sequential inputs. As such, these models have been widely popular in processing sequential data such as speech, text, and video. They solve the main drawback of other RNN models of not being able to caputre long-term dependencies by introducing a "memroy gate" and a "forget gate" to better persist relevant information and discard irrelevant information, respectively. 
+LSTM models are a special kind of Recurrent Neural Network (RNN) model which feature evolving hidden states that capture time-dependencies in sequential inputs. As such, these models have been widely popular in processing sequential data such as speech, text, and video. They solve the main drawback of other RNN models of not being able to caputre long-term dependencies by introducing a "memory gate" and a "forget gate" to better persist relevant information and discard irrelevant information, respectively. 
 
 A standard LSTM model will have the following components
 
@@ -58,7 +58,7 @@ Graph connectivity is utilized in pooling the outputs of these separate models b
 
 where Aggregate is some aggregation function, $\mVector{W}^{l}$ is a learned weights matrix, and $Ne(v_i)$ denotes the neighbors of node $v_i$.
 
-The level of message passing is largely determined by the number of GNN layers, with more layers allowing for greater aggregation) and the aggregation function used in pooling the embeddings (with more complicated aggregation schemes allowing for greater information flow).
+The level of message passing is largely determined by the number of GNN layers, with more layers allowing for greater aggregation and the aggregation function used in pooling the embeddings (with more complicated aggregation schemes allowing for greater information flow).
 
 Graph Convolutional Networks (GCN) add an additional layer of complexity as it takes in a node feature vector and an adjacency matrix at every step to provide improved context for the message-passing steps. Given the adjacency matrix $A \in \R^{n \times n}$, we add self-connections to get $\mVector{\tilde{A}} = \mVector{A} + \mVector{I}_n$ where $I_n$ is the $n \times n$ identity matrix. We can then construct the diagonal degree matrix $\mVector{\tilde{D}}$ where $\mVector{\tilde{D}}_{ii} = \sum_i\mVector{\tilde{A}}$. Then the propagation rule introduced in \cite{Kipf2017} is
 

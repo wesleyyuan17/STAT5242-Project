@@ -1,3 +1,9 @@
 \section{Discussion}
 
-Pending results
+Our experiments show the improved performance of combining graphical models with classic temporal models. From Table \ref{tab:results_summary} we see that both combination schemes outperform the baseline LSTM with the TGC method achieving 10x performance. This highlights the importance of models that are able to capture both temporal and relational patterns from price data in performing asset price prediction.
+
+These results were achieved using hyperparameters tuned to the baseline LSTM training and one can assume that even better results can be achieved by the combined models with additional hyperparameter tuning. For example, the sequential model reached saturation after a single epoch, suggesting the need for a smaller initial learning rate or some learning rate annealing scheme. 
+
+Furthermore, our experiments were constrained by limited computational resources and therefore is only meant to highlight the improvement GCN's offer rather than the performance possible. To achieve better results, one could try increasing the number of layers in both the LSTM and the GCN models as well as using bi-directional LSTM rather than vanilla LSTM to produce better embeddings.
+
+Extensions of this line work would include applications of better price predictions to different trading strategies. Experiments can be run to test PnL or Sharpe ratio improvement given more accurate predictions in long or short term trading. The efficacy can also be studied across asset classes as previous works, including ours, have focused on assets belonging to the same class. One can try layering GCNs with a TGC model per asset class and an over-arching GCN model to combine predictions across asset classes. Given the novelty of the approach, there is still much room to explore in the use of temporal graphical models.
