@@ -84,7 +84,7 @@ def main(eval_model, technicals, model_name):
         for l in losses:
             f.write('{}\n'.format(l))
     
-    print('Average MSE for {}: {:.4f}'.format(model_name, np.mean(losses)))
+    print('Average MSE for {}: {:.8f}'.format(model_name, np.mean(losses)))
 
 
 if __name__ == '__main__':
