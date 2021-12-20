@@ -10,7 +10,7 @@ This repo contains code accompanying Fall 2021 STAT5242 Final Project. To get se
 pip install -r requirements.txt
 ```
 
-2. Download the G-Research data from <https://www.kaggle.com/cstein06/tutorial-to-the-g-research-crypto-competition/data> and place the unzipped folder in the 'data' directory
+2. Download the G-Research data from <https://www.kaggle.com/c/g-research-crypto-forecasting/data> and place the unzipped folder in the 'data' directory
 
 ## Training models
 
