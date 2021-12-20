@@ -1,5 +1,7 @@
 # STAT5242-Project
 
+## Setup
+
 This repo contains code accompanying Fall 2021 STAT5242 Final Project. To get set up, make sure you are using Python <3.10and  simply follow the two-step process
 
 1. Clone this repo and install requirements using
